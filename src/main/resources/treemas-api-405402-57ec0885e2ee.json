@@ -1,0 +1,13 @@
+{
+  "type": "service_account",
+  "project_id": "treemas-api-405402",
+  "private_key_id": "57ec0885e2ee2b487e7c587cdd1299789b75a413",
+  "private_key": "-----BEGIN PRIVATE KEY-----\nMIIEvwIBADANBgkqhkiG9w0BAQEFAASCBKkwggSlAgEAAoIBAQDAG94hupV5zA39\nTHsENcRa4BTj9G5EGW7fGjfKGB7p3MHNOYaq/scaWlTuHE9N17aUs9NwZLaZlY8k\nBzpIMj6TKwzPYDxnQlXkO3DTDArfdQCADo4ducp4uezwyQ4Jndrtt9m1IC9ltkwQ\nWoHCtnL2jbbFqVmDZ8Hf1bREq50mpk4pChDtsjmexL/IrzAZgarkIq6JnouJ1oWt\n4ruy/ZfF1gWTNa9YOtoBAPdiPARRD8DxJhIXtS6RckeYq2Yx/U7Skq+XEX9V3llG\nOrZNOoFlXxp0vfnEAlVBps1iJlNaAiA436EkwWXUXUS2AuASxdgedpPnPstqlivU\nF1qYm/ZDAgMBAAECggEADB0VvjG6QDJeRXUfoq3TQlmz54XfuBqUc6v/DZbEyEFb\n1RmGBN1I57//b/5H/+QUxr6qHAG1w+x62K49/hRw/q2twpvSYz57FQesfxpYyyth\nCzIfwv8WpdMvfiVnZbLW/btklne/lV3P4Q4b9Y+0oxhfiIo7sz4FKxyaH+RkZe3l\nqk1pINzbLPUAaBMe+MLNIR3Fvg8MhLoUNVicbOs6ts6n1xZAoW+9TDdJFxUiDRdX\n3iWV3ZfI8Lo0i6X4GiEDAEuolXFZ6U7beNleSTOe20dlmFQKur/W1CWVlLns1oLw\ntwr0UDpHX8sX9xlTDgLCNT/j50MLjm+/H09kNTxNmQKBgQDpBhM166F3VXxgC8yf\neYawleSFPLNAlgLJcgouAZy6m5bCNLTY2usOP4xgFavfMjIqNnXtJep2u4HMnloB\nW76rehTnMFzzg0NWC9lDwR7jHpJGqaEojFziorTXz/2CEkC+5HInMAc4tHrWfDxT\ncJh82DHJay3iOqj+UV07PUptWwKBgQDTDQetvPalPoYVJdK7/u4Bps20GviTahxX\nookuakCkitUDZJGE9Ep0Meq08wjPth476gTrWlHbBXm1jwXs/hH3LFfwqT3NC0Vx\n8n/6vE8nxrzqHJi9l8EaSLAgHCXu1VnpvYMLDs04Dcw0ybmH36wOvLz15pa60f6c\ny/Ldnz5nOQKBgQCIxuwXxktshF0Q81wUb3zDwff0zQBadLMGE04uWvvn/NOtAsr0\nTuuR3XNEIvRTel8/r9/gZ1UMhFtYA8rI6VUtyebjHNwyg2XO5/2La5v5rEQn/gF+\nj4Ul8mM8GfWvl48xfV4T6nkSq70+kIXIZFrdTPlMRQEVvWDchl23G+7H6QKBgQC9\n8Q4mGNjJ4zl9Musz8r11kw+ytktdMLSNUmSv90RyUdhgE1S8GbggVwRrEgeuGLOh\nLH586m6c9ZKSCkRFBGxazfffShGqxigb4ym3GV8L51sCP/ZfO4K5Cw4n9+1Tw4QG\nT17uxsV/WzubjqmBVZZeNRLDJGInhPLnXs4XE0hwUQKBgQDQ0z4nW5/AksjYnTgP\nFOFEkYT7wMZjjdLT1KDzkxIPWDlTJJU0ZrWKuJ38ZY1+/pCevp49k+xc8ak1Y1MS\nSaQPiHhhnh76OBO97OYl1tS4gyFSl8NWsXMO3QF6x93os3nnCyudAFTCZmiQuE60\nzRcmf0HbhWiuxhmEkjuk2dOsig==\n-----END PRIVATE KEY-----\n",
+  "client_email": "treemas-api-405402@appspot.gserviceaccount.com",
+  "client_id": "108979223436834505272",
+  "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+  "token_uri": "https://oauth2.googleapis.com/token",
+  "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+  "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/treemas-api-405402%40appspot.gserviceaccount.com",
+  "universe_domain": "googleapis.com"
+}
