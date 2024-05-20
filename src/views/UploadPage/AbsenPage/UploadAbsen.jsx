@@ -14,27 +14,38 @@ import FormAbsen from "../../../components/Content/FormAbsen/FormAbsen";
 const UploadAbsen = () => {
   const navigate = useNavigate();
   const [apiData, setApiData] = useState([]);
+  const [titleForm, setTitleForm] = useState("");
+  const [isTelatMasuk, setIsTelatMasuk] = useState(null);
+  const [isAbsen, setIsAbsen] = useState(false);
 
   const [showAbsenForm, setShowAbsenForm] = useState(false);
 
   const handleShow = () => setShowAbsenForm(true);
-  const handleClose = () => {
-    setShowAbsenForm(false)
-    localStorage.removeItem("alamatProject")
+  const handleClose = (isAbsen) => {
+    setShowAbsenForm(false);
+    setIsAbsen(isAbsen);
+    localStorage.removeItem("alamatProject");
+    console.log("HI SAYA SUDAH ABSEN");
   };
 
   const handleAbsenMasuk = () => {
     const now = new Date();
-    const currentHour = now.getHours();
+    const currentHour = 7;
     console.log(currentHour);
     if (currentHour >= 9) {
       setShowAbsenForm(true);
+      setTitleForm("Absen Telat Masuk");
+      setIsTelatMasuk(true);
+    } else {
+      setShowAbsenForm(true);
+      setTitleForm("Absen Masuk");
+      setIsTelatMasuk(false);
     }
-  } 
+  };
 
   const handleAbsenPulang = () => {
-    handleShow()
-  }
+    handleShow();
+  };
   // Get Data Absen
   useEffect(() => {
     const fetchData = async () => {
@@ -81,7 +92,6 @@ const UploadAbsen = () => {
       navigate("/login");
     }
   }, [navigate]);
-
 
   const columns = [
     {
@@ -136,11 +146,16 @@ const UploadAbsen = () => {
     columns,
     data: apiData,
   };
-    return (
+  return (
     <div className="content__container">
       <Navbar navbarText="Upload / Absen" />
-      { showAbsenForm && (
-        <FormAbsen title="Absen Telat Masuk" show={showAbsenForm} handleClose={handleClose} />
+      {showAbsenForm && (
+        <FormAbsen
+          title={titleForm}
+          show={showAbsenForm}
+          handleClose={handleClose}
+          isTelatMasuk={isTelatMasuk}
+        />
       )}
       <div className="input__container">
         <div className="left__container__input__absen">
@@ -151,11 +166,14 @@ const UploadAbsen = () => {
                 className="unggah__button"
                 onClick={handleAbsenMasuk}
               />
-              <Button
-                text="Absen Pulang"
-                className="unggah__button"
-                onClick={handleAbsenPulang}
-              />
+              {isAbsen && (
+                <Button
+                  text="Absen Pulang"
+                  className="unggah__button"
+                  onClick={handleAbsenPulang}
+                />
+              )}
+
               {/* <ExportToExcel apiData={apiData} fileName={"Template_Absent_Treemas"}/> */}
             </div>
           </div>

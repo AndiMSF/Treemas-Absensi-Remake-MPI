@@ -6,8 +6,9 @@ import Modal from 'react-bootstrap/Modal';
 import DropdownMenu from "../../Elements/DropdownMenu/DropdownMenu";
 import { Dropdown, FormControl } from "react-bootstrap";
 import { useNavigate } from "react-router-dom";
+import axios from "axios";
 
-const FormAbsen = ({ show, handleClose, title }) => {
+const FormAbsen = ({ show, handleClose, title, isTelatMasuk }) => {
   const navigate = useNavigate();
   const [dropdownProjectTitle, setDropdownProjectTitle] = useState('Pilih Project');
   const [projectData, setProjectData] = useState([]);
@@ -16,9 +17,22 @@ const FormAbsen = ({ show, handleClose, title }) => {
   const [error, setError] = useState(null);
   const [selectedWfhOnsite, setSelectedWfhOnSite] = useState("WFH / On Site");
   const [alamatProject, setAlamatProject] = useState(localStorage.getItem("alamatProject") || "");
+  const [loading, setLoading] = useState(false);
+
 
   const [valueAbsen, setValueAbsen] = useState("");
   const [position, setPosition] = useState({ latitude: null, longitude: null });
+
+  const [formData, setFormData] = useState({
+    projectId: "",
+    nik: "",
+    nama: "",
+    hari: "",
+    tgl_absen: null,
+    image: "",
+  });
+
+  console.log(isTelatMasuk);
 
   useEffect(() => {
     if ("geolocation" in navigator) {
@@ -102,6 +116,75 @@ const FormAbsen = ({ show, handleClose, title }) => {
     }
   }, [navigate, project, isToken]);
 
+  const handleImageUpload = (e) => {
+    const file = e.target.files[0]; // Mendapatkan file yang diunggah dari input
+
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        // Konversi gambar ke base64 dan simpan dalam state formData
+        setFormData({
+          ...formData,
+          image64: event.target.result,
+          image: file.name,
+        });
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const handleSaveChanges = async (e) => {
+    // agar tombol absen pulang ada kita lempar true ke parent component
+    // Harusnya dari Database
+    handleClose(true)
+
+    e.preventDefault();
+    const token = localStorage.getItem("authToken");
+    setLoading(true);
+
+    if (!token) {
+      console.error("Token is not available");
+      return navigate("/login");
+    }
+
+    try {
+      const requestData = {
+        project_id: formData.projectId,
+        nik: formData.nik,
+        nama: formData.nama,
+        hari: formData.hari,
+        tgl_absen: formData.tglAbsen,
+        lokasi_msk: formData.lokasiMsk,
+        jam_msk: formData.jam_msk,
+      };
+
+      const response = await axios.post(
+        "http://localhost:8081/api/master-data/announcement-form/add",
+        requestData,
+        {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      Swal.fire({
+        title: "Success!",
+        text: "Absen Submitted.",
+        icon: "success",
+      });
+      navigate("/master-data/announcement-view");
+      console.log("Response from API:", response.data);
+    } catch (error) {
+      // Jika tidak berhasil, tampilkan pesan error
+      Swal.fire({
+        title: "Error!",
+        text: "Failed to Absen.",
+        icon: "error",
+      });
+    }
+  }
+
   return (
     <Modal show={show} onHide={handleClose}>
       <Modal.Header closeButton>
@@ -133,21 +216,35 @@ const FormAbsen = ({ show, handleClose, title }) => {
           />
 
           <FormControl disabled={true} type="text" placeholder="Lokasi Absen" value={ selectedWfhOnsite === "WFH" ? "SAWANGAN" : valueAbsen } />
-
-          <Form.Group
+          
+          {isTelatMasuk && (
+            <Form.Group
             className="mb-3"
             controlId="exampleForm.ControlTextarea1"
           >
-            <Form.Label>Example textarea</Form.Label>
+            <Form.Label style={{color: 'black'}}>Catatan telat masuk</Form.Label>
             <Form.Control as="textarea" rows={3} />
           </Form.Group>
+          )}
+
+          {selectedWfhOnsite === "WFH" && (
+            <Form.Group className="upload" controlId="formFile">
+              <div className="form__row__left">
+                <Form.Label>{isTelatMasuk ? "Foto Telat Masuk" : "Foto WFH"}</Form.Label>
+              </div>
+              <div className="form__row__right">
+                <Form.Control type="file" onChange={handleImageUpload} />
+              </div>
+            </Form.Group>
+          )}
+          
         </Form>
       </Modal.Body>
       <Modal.Footer>
         <Button variant="secondary" onClick={handleClose}>
           Close
         </Button>
-        <Button variant="primary" onClick={handleClose}>
+        <Button variant="primary" onClick={handleSaveChanges}>
           Save Changes
         </Button>
       </Modal.Footer>
