@@ -20,6 +20,11 @@ const Penempatan = () => {
   const [isAbsen, setIsAbsen] = useState(false);
   const [isToken, setIstoken] = useState("");
   const [showAbsenForm, setShowAbsenForm] = useState(false);
+  const nik = localStorage.getItem("nik")
+  const [formData, setFormData] = useState({
+    active: null,
+    projectId: ""
+  })
 
   // State untuk menyimpan status switch
   const [switchStates, setSwitchStates] = useState({});
@@ -70,7 +75,18 @@ const Penempatan = () => {
     }));
 
     console.log(`Switch for ${projectId} is ${checked}`);
+    setFormData({...formData,
+      projectId: projectId,
+      nik: nik,
+      isActive: checked
+    })
+
   };
+
+  // Effect to log form data when it updates
+useEffect(() => {
+  console.log("Form Data ", formData);
+}, [formData]);
 
   const columns = [
     {
