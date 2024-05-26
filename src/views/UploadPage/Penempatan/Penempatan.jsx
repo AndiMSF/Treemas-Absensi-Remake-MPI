@@ -12,6 +12,9 @@ import "react-data-table-component-extensions/dist/index.css";
 
 import FormAbsen from "../../../components/Content/FormAbsen/FormAbsen";
 import { Form } from "react-bootstrap";
+import HashLoader from "react-spinners/HashLoader";
+import Swal from "sweetalert2";
+import axios from "axios";
 const Penempatan = () => {
   const navigate = useNavigate();
   const [apiData, setApiData] = useState([]);
@@ -20,7 +23,8 @@ const Penempatan = () => {
   const [isAbsen, setIsAbsen] = useState(false);
   const [isToken, setIstoken] = useState("");
   const [showAbsenForm, setShowAbsenForm] = useState(false);
-
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
   // State untuk menyimpan status switch
   const [switchStates, setSwitchStates] = useState({});
 
@@ -29,7 +33,7 @@ const Penempatan = () => {
     const fetchData = async () => {
       try {
         const response = await fetch(
-          "http://localhost:8081/api/master-data/project-view",
+          "http://localhost:8081/update-list-projects",
           {
             method: "GET", // Sesuaikan metode sesuai kebutuhan (GET, POST, dll.)
             headers: {
@@ -39,8 +43,15 @@ const Penempatan = () => {
           }
         );
         const data = await response.json();
-        if (data.status === "Success") {
+        if (data.success === true) {
           setApiData(data.data);
+          console.log("Success " + JSON.stringify(data.data, null, 2));
+          // Set switch states berdasarkan isActive
+          const initialSwitchStates = {};
+          data.data.forEach((item) => {
+            initialSwitchStates[item.projectId] = item.isActive === "1";
+          });
+          setSwitchStates(initialSwitchStates);
         } else {
           setError("Failed to fetch data");
         }
@@ -59,7 +70,7 @@ const Penempatan = () => {
     }
   }, [navigate, isToken]);
 
-  const handleSwitchChange = (e, row) => {
+  const handleSwitchChange = async (e, row) => {
     const { checked } = e.target;
     const { projectId } = row;
 
@@ -69,7 +80,45 @@ const Penempatan = () => {
       [projectId]: checked,
     }));
 
-    console.log(`Switch for ${projectId} is ${checked}`);
+    setLoading(true);
+
+    const requestData = {
+      projectId: projectId,
+      isActive: checked ? "1" : "0",
+    };
+
+    try {
+      const response = await axios.put(
+        "http://localhost:8081/api/absen/update-penempatan",
+        requestData,
+        {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${isToken}`,
+          },
+        }
+      );
+
+      console.log(response);
+
+      Swal.fire({
+        title: "Success!",
+        text: response.data.message,
+        icon: "success",
+      });
+
+      setLoading(false);
+    } catch (error) {
+      console.error("Error updating project:", error);
+
+      Swal.fire({
+        title: "Error!",
+        text: "Failed to update project.",
+        icon: "error",
+      });
+
+      setLoading(false);
+    }
   };
 
   const columns = [
@@ -119,6 +168,11 @@ const Penempatan = () => {
   return (
     <div className="content__container">
       <Navbar navbarText="Upload / Penempatan" />
+      {loading && (
+        <div className="loading-overlay">
+          <HashLoader loading={loading} size={90} color="#d6e0de" />
+        </div>
+      )}
       <div className="input__container">
         <div className="left__container__input__absen">
           <div className="top__container__input">
