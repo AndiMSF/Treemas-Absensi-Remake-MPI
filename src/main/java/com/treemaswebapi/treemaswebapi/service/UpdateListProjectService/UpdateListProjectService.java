@@ -20,6 +20,7 @@ import com.treemaswebapi.treemaswebapi.repository.KaryawanRepository;
 import com.treemaswebapi.treemaswebapi.entity.PenempatanEntity.PenempatanEntity;
 import com.treemaswebapi.treemaswebapi.entity.ProjectEntity.ProjectEntity;
 import com.treemaswebapi.treemaswebapi.config.JwtService;
+import com.treemaswebapi.treemaswebapi.controller.AbsenController.request.AddPenempatanReq;
 import com.treemaswebapi.treemaswebapi.controller.AbsenController.request.UpdatePenempatanReq;
 
 import lombok.RequiredArgsConstructor;
@@ -32,113 +33,114 @@ public class UpdateListProjectService {
     private final PenempatanRepository penempatanRepository;
     private final KaryawanRepository karyawanRepository;
 
-public ResponseEntity<Map<String, Object>> listProject(@RequestHeader String tokenWithBearer, @RequestBody String projectId){
-    Map<String, Object> response = new HashMap<>();
-    try{
-        if (tokenWithBearer.startsWith("Bearer ")) {
+    public ResponseEntity<Map<String, Object>> listProject(@RequestHeader String tokenWithBearer) {
+        Map<String, Object> response = new HashMap<>();
+        try {
+            if (tokenWithBearer.startsWith("Bearer ")) {
                 String token = tokenWithBearer.substring("Bearer ".length());
+    
+                // Ekstrak username dari token
                 String nik = jwtService.extractUsername(token);
+    
+                // Ambil semua data dari tabel project
                 List<ProjectEntity> allProjects = projectRepository.findAll();
-                Optional<PenempatanEntity> penempatanOptional = penempatanRepository.findByNikAndActive(nik,"1");
-
-                if (penempatanOptional.isPresent()){
-                    ProjectEntity activeProjectId = penempatanOptional.get().getProjectId();
-                    response.put("success", true);
-                    response.put("message", "Projects retrieved successfully");
-                    response.put("activeProjectId", activeProjectId);
-                    response.put("success", allProjects);
-                    return ResponseEntity.status(HttpStatus.ACCEPTED).body(response);
-                    }else{
-                    response.put("success", true);
-                    response.put("message", "Projects retrieved successfully");
-                    response.put("activeProjectId", "active project belom ada");
-                    response.put("projects", allProjects);
-                    return ResponseEntity.status(HttpStatus.ACCEPTED).body(response);
-                    }
-                }else{
-                    response.put("success", false);
-                    response.put("message", "Invalid token format");
-                    return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
+    
+                // Ambil semua data dari tabel penempatan yang aktif
+                List<PenempatanEntity> activePenempatanList = penempatanRepository.findAllByNikAndActive(nik, "1");
+    
+                // Buat peta untuk penempatan aktif berdasarkan projectId
+                Map<String, PenempatanEntity> activePenempatanMap = new HashMap<>();
+                for (PenempatanEntity penempatan : activePenempatanList) {
+                    activePenempatanMap.put(penempatan.getProjectId().getProjectId(), penempatan);
                 }
-    } catch (Exception e) {
+    
+                // Buat daftar akhir proyek yang akan dikembalikan
+                List<Map<String, Object>> finalProjects = new ArrayList<>();
+    
+                // Tambahkan semua proyek dari tabel project, dan jika ada penempatan aktif, gantikan datanya
+                for (ProjectEntity project : allProjects) {
+                    if (activePenempatanMap.containsKey(project.getProjectId())) {
+                        // Jika ada penempatan aktif untuk proyek ini, gunakan data dari penempatan
+                        PenempatanEntity penempatan = activePenempatanMap.get(project.getProjectId());
+                        Map<String, Object> projectData = new HashMap<>();
+                        projectData.put("projectId", penempatan.getProjectId().getProjectId());
+                        projectData.put("isActive", penempatan.getActive());
+                        projectData.put("namaProject", penempatan.getProjectId().getNamaProject());
+                        projectData.put("lokasi", penempatan.getProjectId().getLokasi());
+                        projectData.put("no_tlpn", penempatan.getProjectId().getNoTlpn());
+                        finalProjects.add(projectData);
+                    } else {
+                        // Jika tidak ada penempatan aktif, gunakan data dari project
+                        Map<String, Object> projectData = new HashMap<>();
+                        projectData.put("projectId", project.getProjectId());
+                        projectData.put("isActive", "0");
+                        projectData.put("namaProject", project.getNamaProject());
+                        projectData.put("lokasi", project.getLokasi());
+                        projectData.put("no_tlpn", project.getNoTlpn());
+                        finalProjects.add(projectData);
+                    }
+                }
+    
+                response.put("success", true);
+                response.put("data", finalProjects);
+                return ResponseEntity.ok(response);
+            } else {
+                response.put("success", false);
+                response.put("message", "Invalid token format");
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
+            }
+        } catch (Exception e) {
             response.put("success", false);
             response.put("message", "Failed to update list of projects");
             response.put("error", e.getMessage());
             return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).body(response);
+        }
     }
-}
+    
 
 //updateProject ini fungsinya untuk masukin project yang udah dipilih sama user, dan save ke penempatanEntity
-public ResponseEntity<Map<String, Object>> updateProject(@RequestHeader String tokenWithBearer, @RequestBody UpdatePenempatanReq updatePenempatanReq) {
+public ResponseEntity<Map<String, Object>> updateProject(@RequestHeader String tokenWithBearer, @RequestBody AddPenempatanReq addPenempatanReq) {
         try {
             if (tokenWithBearer.startsWith("Bearer ")) {
                 String token = tokenWithBearer.substring("Bearer ".length());
                 String nik = jwtService.extractUsername(token);
-                String nama = karyawanRepository.findNamaByNik(nik);
 
                 // Initialize the response map outside the loop
                 Map<String, Object> response = new HashMap<>();
-                boolean successFlag = false;
-                List<PenempatanEntity> updatedPenempatanEntities = new ArrayList<>();
 
-                List<UpdatePenempatanReq.ProjectEntities> projectEntities = updatePenempatanReq.getProjectTerpilih();
-                if (projectEntities != null) {
-                    for (UpdatePenempatanReq.ProjectEntities projectEntity : projectEntities) {
-                        String active = projectEntity.getActive();
-                        String projectId = projectEntity.getProjectId();
-                        ProjectEntity existingProject = projectRepository.findByProjectId(projectId);
-                        PenempatanEntity existingPenempatan = penempatanRepository.findActiveByProjectIdAndNik(existingProject, nik);
+                // Fetch the ProjectEntity using the project ID from the request
+                ProjectEntity projectEntity = projectRepository.findById(addPenempatanReq.getProjectId())
+                        .orElseThrow(() -> new RuntimeException("Project not found"));
 
-                        if (existingPenempatan != null) {
-                            PenempatanEntity penempatanEntity = existingPenempatan;
-                            // Set values in penempatanEntity
-                            penempatanEntity.setActive(active);
-                            penempatanEntity.setNik(nik);
-                            penempatanEntity.setUsrUpd(nama);
-                            penempatanEntity.setDtmUpd(Timestamp.valueOf(LocalDateTime.now()));
+                
+                // Langsung set ke table penempatan
+                // Check if PenempatanEntity already exists
+                PenempatanEntity penempatanEntity = penempatanRepository.findByNikAndProjectId(nik, projectEntity)
+                        .orElse(null);
 
-                            // Save penempatanEntity
-                            penempatanRepository.save(penempatanEntity);
-
-                            // Set success flag to true
-                            successFlag = true;
-                            // Add updated penempatanEntity to the list
-                            updatedPenempatanEntities.add(penempatanEntity);
-
-                        } else {
-                            PenempatanEntity penempatanEntity = new PenempatanEntity();
-
-                            penempatanEntity.setActive(active);
-                            penempatanEntity.setDtmUpd(Timestamp.valueOf(LocalDateTime.now()));
-                            penempatanEntity.setNik(nik);
-                            penempatanEntity.setProjectId(existingProject);
-                            penempatanEntity.setUsrUpd(nama);
-
-                            penempatanRepository.save(penempatanEntity);
-
-                            // Set success flag to true
-                            successFlag = true;
-                            // Add created penempatanEntity to the list
-                            updatedPenempatanEntities.add(penempatanEntity);
-                        }
-                    }
-
-                    // Build and return the response after the loop has completed
-                    if (successFlag) {
-                        response.put("success", true);
-                        response.put("message", "Berhasil update projects");
-                        response.put("data", updatedPenempatanEntities);
-                    } else {
-                        response.put("success", false);
-                        response.put("message", "No updates performed");
-                    }
-                    return ResponseEntity.ok(response);
+                if (penempatanEntity == null) {
+                    // Create a new PenempatanEntity if it does not exist
+                    penempatanEntity = PenempatanEntity.builder()
+                        .nik(nik)
+                        .projectId(projectEntity)
+                        .active(addPenempatanReq.getIsActive())
+                        .build();
                 } else {
-                    // Set response values for the case where PROJECT LIST IS NULL
-                    response.put("success", false);
-                    response.put("message", "PROJECT LIST IS NULL");
-                    return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+                    // Update the isActive field if PenempatanEntity already exists
+                    penempatanEntity.setActive(addPenempatanReq.getIsActive());
                 }
+
+                // Save the PenempatanEntity to the repository
+                penempatanRepository.save(penempatanEntity);
+                // Set the response message based on the isActive value
+                if ("0".equals(addPenempatanReq.getIsActive())) {
+                    response.put("message", "Project removed successfully");
+                } else {
+                    response.put("message", "Project added successfully");
+                }
+                response.put("success", true);
+                return ResponseEntity.ok(response);
+
             } else {
                 Map<String, Object> response = new HashMap<>();
                 response.put("success", false);
@@ -149,7 +151,7 @@ public ResponseEntity<Map<String, Object>> updateProject(@RequestHeader String t
             // Handle exceptions
             Map<String, Object> response = new HashMap<>();
             response.put("success", false);
-            response.put("message", "Failed to update list of projects");
+            response.put("message", "Failed to add list of projects");
             response.put("error", e.getMessage());
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
         }

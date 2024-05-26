@@ -14,10 +14,14 @@ import com.treemaswebapi.treemaswebapi.entity.ProjectEntity.ProjectEntity;
 
 @Repository
 public interface PenempatanRepository extends JpaRepository<PenempatanEntity, Long> {
-
+    
+    Optional<PenempatanEntity> findByNikAndProjectId(String nik, ProjectEntity projectId);
+    
     List<Long> findIdByNik(String nik);
 
     List<PenempatanEntity> findAllByNik(String nik);
+
+    List<PenempatanEntity> findAllByNikAndActive(String nik, String isActive);
 
      @Query("SELECT p FROM PenempatanEntity p WHERE p.nik = :nik")
     List<PenempatanEntity> findByNik(@Param("nik") String nik);

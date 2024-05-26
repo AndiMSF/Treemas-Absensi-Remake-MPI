@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import com.treemaswebapi.treemaswebapi.controller.AbsenController.request.AbsenRequest;
+import com.treemaswebapi.treemaswebapi.controller.AbsenController.request.AddPenempatanReq;
 import com.treemaswebapi.treemaswebapi.controller.AbsenController.request.UpdatePenempatanReq;
 import com.treemaswebapi.treemaswebapi.controller.MemberController.request.MemberRequest;
 import com.treemaswebapi.treemaswebapi.service.AbsenService.AbsenService;
@@ -115,10 +116,10 @@ public class AbsenController {
     }
 
     // fungsi buat update alias PUT data penempatan
-    @PatchMapping("/update-penempatan")
+    @PutMapping("/update-penempatan")
     public ResponseEntity<Map<String, Object>> updatePenempatan(
         @RequestHeader("Authorization") String token,
-        @RequestBody UpdatePenempatanReq request
+        @RequestBody AddPenempatanReq request
     ){
         return updatePenempatan.updateProject(token, request);
     }
