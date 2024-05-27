@@ -49,7 +49,7 @@ const UploadAbsen = () => {
   // Get Data Absen
   useEffect(() => {
     const fetchData = async () => {
-      console.log("MASUK USE EPEK");
+      console.log("MASUK USE EFFECT");
       try {
         const response = await fetch(
           "http://localhost:8081/api/upload/get-absen",

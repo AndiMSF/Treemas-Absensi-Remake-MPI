@@ -7,6 +7,7 @@ import DropdownMenu from "../../Elements/DropdownMenu/DropdownMenu";
 import { Dropdown, FormControl } from "react-bootstrap";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
+import Swal from "sweetalert2";
 
 const FormAbsen = ({ show, handleClose, title, isTelatMasuk }) => {
   const navigate = useNavigate();
@@ -18,7 +19,7 @@ const FormAbsen = ({ show, handleClose, title, isTelatMasuk }) => {
   const [selectedWfhOnsite, setSelectedWfhOnSite] = useState("WFH / On Site");
   const [alamatProject, setAlamatProject] = useState(localStorage.getItem("alamatProject") || "");
   const [loading, setLoading] = useState(false);
-
+  const [valueLokasiWFH, setValueLokasiWFH] = useState("")
 
   const [valueAbsen, setValueAbsen] = useState("");
   const [position, setPosition] = useState({ latitude: null, longitude: null });
@@ -74,19 +75,24 @@ const FormAbsen = ({ show, handleClose, title, isTelatMasuk }) => {
     if (selectedWfhOnsite === "WFH / On Site") {
       setValueAbsen("");
     } else if (selectedWfhOnsite === "WFH"){
-      setValueAbsen("SAWANGAN");
-      console.log(position);
+      setValueAbsen("");
     } else {
       setValueAbsen(alamatProject);
       console.log("MASUK ON SITE");
     }
   };
 
+  const handleChange = (event) => {
+    setValueLokasiWFH(event.target.value);
+    console.log(valueLokasiWFH);
+  };
+  
+
   useEffect(() => {
     const fetchData = async () => {
       try {
         const response = await fetch(
-          "http://localhost:8081/api/master-data/project-view",
+          "http://localhost:8081/update-list-projects",
           {
             method: "GET", // Sesuaikan metode sesuai kebutuhan (GET, POST, dll.)
             headers: {
@@ -96,8 +102,10 @@ const FormAbsen = ({ show, handleClose, title, isTelatMasuk }) => {
           }
         );
         const data = await response.json();
-        if (data.status === "Success") {
-          setProjectData(data.data);
+        if (data.success === true) {
+          // Filter data yang memiliki isActive = 1
+          const filteredData = data.data.filter(item => item.isActive === "1");
+          setProjectData(filteredData);
         } else {
           setError("Failed to fetch data");
         }
@@ -215,7 +223,7 @@ const FormAbsen = ({ show, handleClose, title, isTelatMasuk }) => {
             title={selectedWfhOnsite}
           />
 
-          <FormControl disabled={true} type="text" placeholder="Lokasi Absen" value={ selectedWfhOnsite === "WFH" ? "SAWANGAN" : valueAbsen } />
+          <FormControl disabled={selectedWfhOnsite === "WFH" ? false : true} type="text" placeholder="Lokasi Absen" value={ selectedWfhOnsite === "WFH" ? valueLokasiWFH : valueAbsen } onChange={handleChange} />
           
           {isTelatMasuk && (
             <Form.Group

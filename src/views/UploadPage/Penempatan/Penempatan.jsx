@@ -28,7 +28,7 @@ const Penempatan = () => {
   // State untuk menyimpan status switch
   const [switchStates, setSwitchStates] = useState({});
 
-  // Get Data Absen
+  // Get Data Project
   useEffect(() => {
     const fetchData = async () => {
       try {
