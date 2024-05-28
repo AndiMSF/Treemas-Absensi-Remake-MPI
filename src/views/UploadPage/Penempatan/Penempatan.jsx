@@ -9,6 +9,8 @@ import DataTable from "react-data-table-component";
 import SortIcon from "@material-ui/icons/ArrowDownward";
 import DataTableExtensions from "react-data-table-component-extensions";
 import "react-data-table-component-extensions/dist/index.css";
+import axios from "axios";
+import Swal from "sweetalert2";
 
 import FormAbsen from "../../../components/Content/FormAbsen/FormAbsen";
 import { Form } from "react-bootstrap";
@@ -25,6 +27,7 @@ const Penempatan = () => {
     active: null,
     projectId: ""
   })
+  const [error, setError] = useState(null)
 
   // State untuk menyimpan status switch
   const [switchStates, setSwitchStates] = useState({});
@@ -64,7 +67,7 @@ const Penempatan = () => {
     }
   }, [navigate, isToken]);
 
-  const handleSwitchChange = (e, row) => {
+  const handleSwitchChange = async (e, row) => {
     const { checked } = e.target;
     const { projectId } = row;
 
@@ -81,11 +84,45 @@ const Penempatan = () => {
       isActive: checked
     })
 
+
+    const requestData = {
+      projectId: formData.projectId,
+      active: formData.active,
+      nik: formData.nik,
+    }
+
+    const token = localStorage.getItem("authToken");
+  console.log("Form Data ", formData);
+  console.log("Is Token "+token);
+
+  if (token) {
+    setIstoken(token)
+    console.log("MASUK INI ADA TOKEN");
+    // Kirim API
+    const response = await axios.patch("http://localhost:8081/api/absen/update-penempatan", requestData, {
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${isToken}`,
+      }
+    })
+
+    console.log("Response "+response);
+    Swal.fire({
+      title: "Success!",
+      text: "Karyawan Added.",
+      icon: "success",
+    });
+  }
+
   };
 
   // Effect to log form data when it updates
 useEffect(() => {
+  const token = localStorage.getItem("authToken");
   console.log("Form Data ", formData);
+  if (token) {
+    setIstoken(token)
+  }
 }, [formData]);
 
   const columns = [
