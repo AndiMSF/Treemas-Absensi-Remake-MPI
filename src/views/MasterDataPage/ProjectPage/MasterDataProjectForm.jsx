@@ -120,9 +120,11 @@ const MasterDataProjectForm = () => {
         text: "Project Added.",
         icon: "success",
       });
+      setLoading(false)
       navigate("/master-data/project-view");
     } catch (error) {
       console.log("Failed To Create Project " + error);
+      setLoading(false)
       Swal.fire({
         title: "Error!",
         text: "Failed To Add Project.",

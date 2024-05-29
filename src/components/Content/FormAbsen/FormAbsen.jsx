@@ -7,8 +7,9 @@ import DropdownMenu from "../../Elements/DropdownMenu/DropdownMenu";
 import { Dropdown, FormControl } from "react-bootstrap";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
+import Swal from "sweetalert2";
 
-const FormAbsen = ({ show, handleClose, title, isTelatMasuk }) => {
+const FormAbsen = ({ show, handleClose, title, isTelatMasuk, isAbsenMasukFunc }) => {
   const navigate = useNavigate();
   const [dropdownProjectTitle, setDropdownProjectTitle] = useState('Pilih Project');
   const [projectData, setProjectData] = useState([]);
@@ -18,10 +19,11 @@ const FormAbsen = ({ show, handleClose, title, isTelatMasuk }) => {
   const [selectedWfhOnsite, setSelectedWfhOnSite] = useState("WFH / On Site");
   const [alamatProject, setAlamatProject] = useState(localStorage.getItem("alamatProject") || "");
   const [loading, setLoading] = useState(false);
-
+  const [valueLokasiWFH, setValueLokasiWFH] = useState("")
 
   const [valueAbsen, setValueAbsen] = useState("");
   const [position, setPosition] = useState({ latitude: null, longitude: null });
+  let isAbsenMasuk = localStorage.getItem("isAbsenMasuk")
 
   const [formData, setFormData] = useState({
     projectId: "",
@@ -30,33 +32,30 @@ const FormAbsen = ({ show, handleClose, title, isTelatMasuk }) => {
     hari: "",
     tgl_absen: null,
     image: "",
+    gpsLatitudeMsk: "",
+    gpsLongitudeMsk: "",
+    isWfh: ""
   });
 
   console.log(isTelatMasuk);
 
-  useEffect(() => {
-    if ("geolocation" in navigator) {
-      navigator.geolocation.getCurrentPosition(function (position) {
-        setPosition({
-          latitude: position.coords.latitude,
-          longitude: position.coords.longitude,
-        });
-      });
-    } else {
-      console.log("Geolocation is not available in your browser.");
-    }
-  }, []);
   const handleProject = (selectedProject) => {
+    console.log("MASUK HANDLE PROJECT");
     // Cari data jabatan berdasarkan selected project yaitu nama project
     const selectedItem = projectData.find(
       (jabatan) => jabatan.namaProject === selectedProject
     );
-
+    console.log("Project  "+JSON.stringify(selectedItem, null, 2));
     setDropdownProjectTitle(selectedProject);
     // kalau sudah ketemu set project value nya itu adalah projectId, untuk namaProject berlaku diatas, hanya untuk menampilkan namaProject jika user klik diantara project, kalau ke database kita pakai projectId untuk mengirim nya.
     setProject(selectedItem.projectId);
-    console.log(selectedItem);
-
+    // Update formData with GPS coordinates
+    setFormData((prevFormData) => ({
+      ...prevFormData,
+      gpsLatitudeMsk: selectedItem.gps_latitude,
+      gpsLongitudeMsk: selectedItem.gps_longitude
+    }));
+    
     // set alamat dari project ke localstorage dan state
     const alamat = selectedItem.lokasi;
     localStorage.setItem("alamatProject", alamat);
@@ -74,19 +73,40 @@ const FormAbsen = ({ show, handleClose, title, isTelatMasuk }) => {
     if (selectedWfhOnsite === "WFH / On Site") {
       setValueAbsen("");
     } else if (selectedWfhOnsite === "WFH"){
-      setValueAbsen("SAWANGAN");
-      console.log(position);
+      setValueAbsen("");
+      // Update formData with GPS coordinates
+    setFormData((prevFormData) => ({
+      ...prevFormData,
+      gpsLatitudeMsk: "",
+      gpsLongitudeMsk: "",
+      isWfh: "1"
+    }));
+    
     } else {
       setValueAbsen(alamatProject);
+      // setFormData( ...formData, {
+      //   gpsLatitudeMsk:
+      // })
       console.log("MASUK ON SITE");
+      setFormData((prevFormData) => ({
+        ...prevFormData,
+        isWfh: "0"
+      }))
     }
   };
 
+  const handleChange = (event) => {
+    setValueLokasiWFH(event.target.value);
+    console.log(valueLokasiWFH);
+    setValueAbsen(event.target.value)
+  };
+  
+  // get Project
   useEffect(() => {
     const fetchData = async () => {
       try {
         const response = await fetch(
-          "http://localhost:8081/api/master-data/project-view",
+          "http://localhost:8081/update-list-projects",
           {
             method: "GET", // Sesuaikan metode sesuai kebutuhan (GET, POST, dll.)
             headers: {
@@ -96,8 +116,10 @@ const FormAbsen = ({ show, handleClose, title, isTelatMasuk }) => {
           }
         );
         const data = await response.json();
-        if (data.status === "Success") {
-          setProjectData(data.data);
+        if (data.success === true) {
+          // Filter data yang memiliki isActive = 1
+          const filteredData = data.data.filter(item => item.isActive === "1");
+          setProjectData(filteredData);
         } else {
           setError("Failed to fetch data");
         }
@@ -114,7 +136,7 @@ const FormAbsen = ({ show, handleClose, title, isTelatMasuk }) => {
     } else {
       navigate("/login");
     }
-  }, [navigate, project, isToken]);
+  }, [navigate, project, isToken, isAbsenMasuk]);
 
   const handleImageUpload = (e) => {
     const file = e.target.files[0]; // Mendapatkan file yang diunggah dari input
@@ -134,6 +156,10 @@ const FormAbsen = ({ show, handleClose, title, isTelatMasuk }) => {
   };
 
   const handleSaveChanges = async (e) => {
+
+    // Ambil Username dan NIK
+    const userName = localStorage.getItem("userName")
+    const nik = localStorage.getItem("nik")
     // agar tombol absen pulang ada kita lempar true ke parent component
     // Harusnya dari Database
     handleClose(true)
@@ -149,17 +175,19 @@ const FormAbsen = ({ show, handleClose, title, isTelatMasuk }) => {
 
     try {
       const requestData = {
-        project_id: formData.projectId,
-        nik: formData.nik,
-        nama: formData.nama,
+        projectId: project,
         hari: formData.hari,
-        tgl_absen: formData.tglAbsen,
-        lokasi_msk: formData.lokasiMsk,
-        jam_msk: formData.jam_msk,
+        lokasiMsk: valueAbsen,
+        gpsLatitudeMsk: formData.gpsLatitudeMsk,
+        gpsLongitudeMsk: formData.gpsLongitudeMsk,
+        isWfh: formData.isWfh
       };
 
+      console.log(requestData);
+      console.log("Token "+token);
+
       const response = await axios.post(
-        "http://localhost:8081/api/master-data/announcement-form/add",
+        "http://localhost:8081/api/absen/input-absen",
         requestData,
         {
           headers: {
@@ -168,13 +196,15 @@ const FormAbsen = ({ show, handleClose, title, isTelatMasuk }) => {
           },
         }
       );
+
       Swal.fire({
         title: "Success!",
         text: "Absen Submitted.",
         icon: "success",
       });
-      navigate("/master-data/announcement-view");
+      setLoading(false)
       console.log("Response from API:", response.data);
+      isAbsenMasukFunc(true)
     } catch (error) {
       // Jika tidak berhasil, tampilkan pesan error
       Swal.fire({
@@ -182,6 +212,9 @@ const FormAbsen = ({ show, handleClose, title, isTelatMasuk }) => {
         text: "Failed to Absen.",
         icon: "error",
       });
+
+      console.log(error);
+      setLoading(false)
     }
   }
 
@@ -215,7 +248,7 @@ const FormAbsen = ({ show, handleClose, title, isTelatMasuk }) => {
             title={selectedWfhOnsite}
           />
 
-          <FormControl disabled={true} type="text" placeholder="Lokasi Absen" value={ selectedWfhOnsite === "WFH" ? "SAWANGAN" : valueAbsen } />
+          <FormControl disabled={selectedWfhOnsite === "WFH" ? false : true} type="text" placeholder="Lokasi Absen" value={ selectedWfhOnsite === "WFH" ? valueLokasiWFH : valueAbsen } onChange={handleChange} />
           
           {isTelatMasuk && (
             <Form.Group

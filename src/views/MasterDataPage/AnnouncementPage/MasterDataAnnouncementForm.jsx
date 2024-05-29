@@ -82,13 +82,15 @@ const MasterDataAnnouncementForm = () => {
       return navigate("/login");
     }
 
+    console.log(formData.image);
+
     try {
       const requestData = {
         title: formData.title,
         header: formData.header,
         note: formData.note,
         image64: formData.image64, // Gunakan data base64 yang telah diambil dari input file
-        image: formData.image,
+        image: formData.image || '',
         footer: formData.footer,
       };
 
@@ -109,6 +111,7 @@ const MasterDataAnnouncementForm = () => {
       });
       navigate("/master-data/announcement-view");
       console.log("Response from API:", response.data);
+      setLoading(false)
     } catch (error) {
       // Jika tidak berhasil, tampilkan pesan error
       Swal.fire({
@@ -116,6 +119,7 @@ const MasterDataAnnouncementForm = () => {
         text: "Failed to add announcement.",
         icon: "error",
       });
+      setLoading(false)
     }
   };
 

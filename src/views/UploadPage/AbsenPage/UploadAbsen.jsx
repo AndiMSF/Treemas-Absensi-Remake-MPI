@@ -17,6 +17,7 @@ const UploadAbsen = () => {
   const [titleForm, setTitleForm] = useState("");
   const [isTelatMasuk, setIsTelatMasuk] = useState(null);
   const [isAbsen, setIsAbsen] = useState(false);
+  const [isAbsenMasuk, setIsAbsenMasuk] = useState("")
 
   const [showAbsenForm, setShowAbsenForm] = useState(false);
 
@@ -27,6 +28,23 @@ const UploadAbsen = () => {
     localStorage.removeItem("alamatProject");
     console.log("HI SAYA SUDAH ABSEN");
   };
+
+  const isAbsenMasukFunc = (isAbsenMasukStorage) => {
+    if(isAbsenMasukStorage === true) {
+      localStorage.setItem("isAbsenMasuk", true)
+      setIsAbsenMasuk(isAbsenMasukStorage)
+      console.log("TRUE");
+    } else {
+      console.log("NO TRUE");
+    }
+
+  }
+
+  const isAbsenMasukLocalStorage = localStorage.getItem("isAbsenMasuk")
+
+
+  useEffect(() => {
+  }, [isAbsenMasukLocalStorage])
 
   const handleAbsenMasuk = () => {
     const now = new Date();
@@ -49,7 +67,7 @@ const UploadAbsen = () => {
   // Get Data Absen
   useEffect(() => {
     const fetchData = async () => {
-      console.log("MASUK USE EPEK");
+      console.log("MASUK USE EFFECT");
       try {
         const response = await fetch(
           "http://localhost:8081/api/upload/get-absen",
@@ -155,6 +173,7 @@ const UploadAbsen = () => {
           show={showAbsenForm}
           handleClose={handleClose}
           isTelatMasuk={isTelatMasuk}
+          isAbsenMasukFunc={isAbsenMasukFunc}
         />
       )}
       <div className="input__container">
@@ -166,7 +185,7 @@ const UploadAbsen = () => {
                 className="unggah__button"
                 onClick={handleAbsenMasuk}
               />
-              {isAbsen && (
+              {isAbsenMasukLocalStorage && (
                 <Button
                   text="Absen Pulang"
                   className="unggah__button"
