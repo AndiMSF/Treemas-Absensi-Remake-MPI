@@ -68,6 +68,8 @@ public class UpdateListProjectService {
                         projectData.put("namaProject", penempatan.getProjectId().getNamaProject());
                         projectData.put("lokasi", penempatan.getProjectId().getLokasi());
                         projectData.put("no_tlpn", penempatan.getProjectId().getNoTlpn());
+                        projectData.put("gps_latitude", penempatan.getProjectId().getGpsLatitude());
+                        projectData.put("gps_longitude", penempatan.getProjectId().getGpsLongitude());
                         finalProjects.add(projectData);
                     } else {
                         // Jika tidak ada penempatan aktif, gunakan data dari project
@@ -77,6 +79,8 @@ public class UpdateListProjectService {
                         projectData.put("namaProject", project.getNamaProject());
                         projectData.put("lokasi", project.getLokasi());
                         projectData.put("no_tlpn", project.getNoTlpn());
+                        projectData.put("gps_latitude", project.getGpsLatitude());
+                        projectData.put("gps_longitude", project.getGpsLongitude());
                         finalProjects.add(projectData);
                     }
                 }

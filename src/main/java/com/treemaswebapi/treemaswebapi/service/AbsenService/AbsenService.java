@@ -190,7 +190,7 @@ public class AbsenService {
                         if (project != null) {
                             // Save to absen Entity
                             LocalTime jamSekarang = LocalTime.parse(LocalTime.now().format(DateTimeFormatter.ofPattern("HH:mm:ss")));
-                            AbsenEntity absenEntity = absenRepository.findByTglAbsenAndNik(tanggalIni, nik);
+                            AbsenEntity absenEntity = new AbsenEntity();
                             absenEntity.setProjectId(project);
                             absenEntity.setNik(nik);
                             absenEntity.setNama(nama);
