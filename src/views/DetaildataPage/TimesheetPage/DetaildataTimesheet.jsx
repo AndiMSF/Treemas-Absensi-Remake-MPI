@@ -350,8 +350,8 @@ const DetaildataTimesheet = () => {
     },
     {
       name: "Nama Karyawan",
-      selector: (row) => row.namaKaryawan || "-",
-      cellExport: (row) => row.namaKaryawan || "-",
+      selector: (row) => row.nama || "-",
+      cellExport: (row) => row.nama || "-",
       sortable: true,
     },
     {
