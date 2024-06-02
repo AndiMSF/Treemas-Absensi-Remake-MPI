@@ -50,289 +50,370 @@ const DetaildataTimesheet = () => {
     setTotalJamText(selectedItem);
   };
 
-  let api;
 
-  useEffect(() => {
-    const token = localStorage.getItem("authToken");
-    const fetchData = async () => {
-      try {
-        const response = await fetch(api, {
-          method: "GET", // Sesuaikan metode sesuai kebutuhan (GET, POST, dll.)
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`, // Sertakan token di sini
-          },
-        });
-        // Tambahkan penanganan kesalahan di sini
-        if (!response.ok) {
-          throw new Error(`HTTP error! Status: ${response.status}`);
-        }
-        const data = await response.json();
-        console.log(data);
-        if (data.success === true) {
-          setApiData(data.data);
-          console.log("LAH");
-          console.log(data.data);
-        }
-      } catch (error) {
-        if (error.message.includes("HTTP error!")) {
-          const statusCode = parseInt(error.message.split(" ").pop());
-          console.log("Status Code:", statusCode);
-
-          if (statusCode === 401) {
-            console.log("Masuk 401");
-            // Token expired, remove token from local storage and redirect to login
-            localStorage.removeItem("authToken");
-          } else {
-            console.log("Gak Masuk 401");
-          }
-        }
-      }
-    };
-    if (token) {
-      fetchData(); // Panggil fungsi fetchData setelah mendapatkan token
-      console.log("Token: " + token);
-    } else {
-      navigate("/login");
-    }
-  }, [navigate, dropdownItems]);
 
   let columns;
   let dataTable;
 
-  if (informationText === "Data Diri") {
-    api = "http://localhost:8081/api/rekap/get-rekap-timesheet";
-    console.log("INI DATA DIRI");
-    // Data
-    columns = [
-      {
-        name: "NIK",
-        selector: (row) => row.nik || "-",
-        cellExport: (row) => row.nik || "-",
-        sortable: true,
-      },
-      {
-        name: "Nama Karyawan",
-        selector: (row) => row.namaKaryawan || "-",
-        cellExport: (row) => row.namaKaryawan || "-",
-        sortable: true,
-      },
-      {
-        name: "Hari",
-        selector: (row) => row.hari || "-",
-        cellExport: (row) => row.hari || "-",
-        sortable: true,
-      },
-      {
-        name: "Tanggal",
-        selector: (row) => formatTimestamp(row.tglMsk) || "-",
-        cellExport: (row) => formatTimestamp(row.tglMsk) || "-",
-        sortable: true,
-      },
-      {
-        name: "Project",
-        selector: (row) =>
-          row.projectId && row.projectId.projectId
-            ? row.projectId.projectId
-            : "-",
-        cellExport: (row) =>
-          row.projectId && row.projectId.projectId
-            ? row.projectId.projectId
-            : "-",
-        sortable: true,
-      },
-      {
-        name: "Jam Masuk",
-        selector: (row) => row.jamMasuk || "-",
-        cellExport: (row) => row.jamMasuk || "-",
-        sortable: true,
-      },
-      {
-        name: "Jam Pulang",
-        selector: (row) => row.jamKeluar || "-",
-        cellExport: (row) => row.jamKeluar || "-",
-        sortable: true,
-      },
-      {
-        name: "Total Jam Kerja",
-        selector: (row) => row.totalJamKerja || "-",
-        cellExport: (row) => row.totalJamKerja || "-",
-        sortable: true,
-      },
-      {
-        name: "Overtime",
-        selector: (row) => row.overtime || "-",
-        cellExport: (row) => row.overtime || "-",
-        sortable: true,
-      },
-      {
-        name: "Catatan",
-        selector: (row) => row.note || "-",
-        cellExport: (row) => row.note || "-",
-        sortable: true,
-      },
-    ];
+  useEffect(() => {
+    const token = localStorage.getItem("authToken");
 
-    dataTable = {
-      columns,
-      data: apiData,
-    };
-  } else if (informationText === "Data Member") {
-    api =
-      "http://localhost:8081/api/detail-data/get-rekap-timesheet/data-member";
-    console.log("INI DATA MEMBER");
-    // Data
+    if (informationText === "Data Diri") {
+      console.log("TIMESHEET TOKEN " + token);
+      const fetchData = async () => {
+        try {
+          const response = await fetch(
+            "http://localhost:8081/api/detail-data/get-rekap-timesheet",
+            {
+              method: "GET", // Sesuaikan metode sesuai kebutuhan (GET, POST, dll.)
+              headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${token}`, // Sertakan token di sini
+              },
+            }
+          );
+          // Tambahkan penanganan kesalahan di sini
+          if (!response.ok) {
+            throw new Error(`HTTP error! Status: ${response.status}`);
+          }
+          const data = await response.json();
+          console.log(data);
+          if (data.success === true) {
+            setApiData(data.data);
+            console.log(data.data);
+          }
+        } catch (error) {
+          if (error.message.includes("HTTP error!")) {
+            const statusCode = parseInt(error.message.split(" ").pop());
+            console.log("Status Code:", statusCode);
 
-    columns = [
-      {
-        name: "NIK",
-        selector: (row) => row.nik || "-",
-        cellExport: (row) => row.nik || "-",
-        sortable: true,
-      },
-      {
-        name: "Nama Karyawan",
-        selector: (row) => row.namaKaryawan || "-",
-        cellExport: (row) => row.namaKaryawan || "-",
-        sortable: true,
-      },
-      {
-        name: "Hari",
-        selector: (row) => row.hari || "-",
-        cellExport: (row) => row.hari || "-",
-        sortable: true,
-      },
-      {
-        name: "Tanggal",
-        selector: (row) => formatTimestamp(row.tglMsk) || "-",
-        cellExport: (row) => formatTimestamp(row.tglMsk) || "-",
-        sortable: true,
-      },
-      {
-        name: "Project",
-        selector: (row) =>
-          row.projectId && row.projectId.projectId
-            ? row.projectId.projectId
-            : "-",
-        cellExport: (row) =>
-          row.projectId && row.projectId.projectId
-            ? row.projectId.projectId
-            : "-",
-        sortable: true,
-      },
-      {
-        name: "Jam Masuk",
-        selector: (row) => row.jamMasuk || "-",
-        cellExport: (row) => row.jamMasuk || "-",
-        sortable: true,
-      },
-      {
-        name: "Jam Pulang",
-        selector: (row) => row.jamKeluar || "-",
-        cellExport: (row) => row.jamKeluar || "-",
-        sortable: true,
-      },
-      {
-        name: "Total Jam Kerja",
-        selector: (row) => row.totalJamKerja || "-",
-        cellExport: (row) => row.totalJamKerja || "-",
-        sortable: true,
-      },
-      {
-        name: "Overtime",
-        selector: (row) => row.overtime || "-",
-        cellExport: (row) => row.overtime || "-",
-        sortable: true,
-      },
-      {
-        name: "Catatan",
-        selector: (row) => row.note || "-",
-        cellExport: (row) => row.note || "-",
-        sortable: true,
-      },
-    ];
+            if (statusCode === 401) {
+              console.log("Masuk 401 "+ error );
+            } else {
+              console.log("Gak Masuk 401");
+            }
+          }
+        }
+      };
+      if (token) {
+        fetchData(); // Panggil fungsi fetchData setelah mendapatkan token
+        console.log("INI DATA DIRI "+JSON.stringify(apiData, null, 2));
+        
+      } else {
+        navigate("/login");
+      }
+    } else if (informationText === "Data Member") {
+      const fetchData = async () => {
+        try {
+          const response = await fetch(
+            "http://localhost:8081/api/detail-data/get-rekap-timesheet/data-member",
+            {
+              method: "GET", // Sesuaikan metode sesuai kebutuhan (GET, POST, dll.)
+              headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${token}`, // Sertakan token di sini
+              },
+            }
+          );
+          // Tambahkan penanganan kesalahan di sini
+          if (!response.ok) {
+            throw new Error(`HTTP error! Status: ${response.status}`);
+          }
+          const data = await response.json();
+          console.log(data);
+          if (data.success === true) {
+            setApiData(data.data);
+            console.log(data.data);
+          }
+        } catch (error) {
+          if (error.message.includes("HTTP error!")) {
+            const statusCode = parseInt(error.message.split(" ").pop());
+            console.log("Status Code:", statusCode);
 
-    dataTable = {
-      columns,
-      data: apiData,
-    };
-  } else {
-    api = "http://localhost:8081/api/rekap/get-rekap-timesheet";
-    console.log("INI DEFAULT DATA DIRI");
-    columns = [
-      {
-        name: "NIK",
-        selector: (row) => row.nik || "-",
-        cellExport: (row) => row.nik || "-",
-        sortable: true,
-      },
-      {
-        name: "Nama Karyawan",
-        selector: (row) => row.namaKaryawan || "-",
-        cellExport: (row) => row.namaKaryawan || "-",
-        sortable: true,
-      },
-      {
-        name: "Hari",
-        selector: (row) => row.hari || "-",
-        cellExport: (row) => row.hari || "-",
-        sortable: true,
-      },
-      {
-        name: "Tanggal",
-        selector: (row) => formatTimestamp(row.tglMsk) || "-",
-        cellExport: (row) => formatTimestamp(row.tglMsk) || "-",
-        sortable: true,
-      },
-      {
-        name: "Project",
-        selector: (row) =>
-          row.projectId && row.projectId.projectId
-            ? row.projectId.projectId
-            : "-",
-        cellExport: (row) =>
-          row.projectId && row.projectId.projectId
-            ? row.projectId.projectId
-            : "-",
-        sortable: true,
-      },
-      {
-        name: "Jam Masuk",
-        selector: (row) => row.jamMasuk || "-",
-        cellExport: (row) => row.jamMasuk || "-",
-        sortable: true,
-      },
-      {
-        name: "Jam Pulang",
-        selector: (row) => row.jamKeluar || "-",
-        cellExport: (row) => row.jamKeluar || "-",
-        sortable: true,
-      },
-      {
-        name: "Total Jam Kerja",
-        selector: (row) => row.totalJamKerja || "-",
-        cellExport: (row) => row.totalJamKerja || "-",
-        sortable: true,
-      },
-      {
-        name: "Overtime",
-        selector: (row) => row.overtime || "-",
-        cellExport: (row) => row.overtime || "-",
-        sortable: true,
-      },
-      {
-        name: "Catatan",
-        selector: (row) => row.note || "-",
-        cellExport: (row) => row.note || "-",
-        sortable: true,
-      },
-    ];
+            if (statusCode === 401) {
+              console.log("Masuk 401");
+              console.log(error);
+            } else {
+              console.log("Gak Masuk 401");
+            }
+          }
+        }
+      };
+      if (token) {
+        fetchData(); // Panggil fungsi fetchData setelah mendapatkan token
+        console.log("INI DATA MEMBER");
 
-    dataTable = {
-      columns,
-      data: apiData,
-    };
-  }
+        // Data
+
+        columns = [
+          {
+            name: "NIK",
+            selector: (row) => row.nik || "-",
+            cellExport: (row) => row.nik || "-",
+            sortable: true,
+          },
+          {
+            name: "Nama Karyawan",
+            selector: (row) => row.nama || "-",
+            cellExport: (row) => row.nama || "-",
+            sortable: true,
+          },
+          {
+            name: "Hari",
+            selector: (row) => row.hari || "-",
+            cellExport: (row) => row.hari || "-",
+            sortable: true,
+          },
+          {
+            name: "Tanggal",
+            selector: (row) => formatTimestamp(row.tglMsk) || "-",
+            cellExport: (row) => formatTimestamp(row.tglMsk) || "-",
+            sortable: true,
+          },
+          {
+            name: "Project",
+            selector: (row) =>
+              row.projectId && row.projectId.projectId
+                ? row.projectId.projectId
+                : "-",
+            cellExport: (row) =>
+              row.projectId && row.projectId.projectId
+                ? row.projectId.projectId
+                : "-",
+            sortable: true,
+          },
+          {
+            name: "Jam Masuk",
+            selector: (row) => row.jamMasuk || "-",
+            cellExport: (row) => row.jamMasuk || "-",
+            sortable: true,
+          },
+          {
+            name: "Jam Pulang",
+            selector: (row) => row.jamKeluar || "-",
+            cellExport: (row) => row.jamKeluar || "-",
+            sortable: true,
+          },
+          {
+            name: "Total Jam Kerja",
+            selector: (row) => row.totalJamKerja || "-",
+            cellExport: (row) => row.totalJamKerja || "-",
+            sortable: true,
+          },
+          {
+            name: "Overtime",
+            selector: (row) => row.overtime || "-",
+            cellExport: (row) => row.overtime || "-",
+            sortable: true,
+          },
+          {
+            name: "Catatan",
+            selector: (row) => row.note || "-",
+            cellExport: (row) => row.note || "-",
+            sortable: true,
+          },
+        ];
+
+        dataTable = {
+          columns,
+          data: apiData,
+        };
+      }
+    } else {
+      console.log("TIMESHEET TOKEN " + token);
+      const fetchData = async () => {
+        try {
+          const response = await fetch(
+            "http://localhost:8081/api/detail-data/get-rekap-timesheet",
+            {
+              method: "GET", // Sesuaikan metode sesuai kebutuhan (GET, POST, dll.)
+              headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${token}`, // Sertakan token di sini
+              },
+            }
+          );
+          // Tambahkan penanganan kesalahan di sini
+          if (!response.ok) {
+            throw new Error(`HTTP error! Status: ${response.status}`);
+          }
+          const data = await response.json();
+          console.log(data);
+          if (data.success === true) {
+            setApiData(data.data);
+            console.log(data.data);
+          }
+        } catch (error) {
+          if (error.message.includes("HTTP error!")) {
+            const statusCode = parseInt(error.message.split(" ").pop());
+            console.log("Status Code:", statusCode);
+
+            if (statusCode === 401) {
+              console.log("Masuk 401 ",statusCode);
+              
+            } else {
+              console.log("Gak Masuk 401");
+            }
+          }
+        }
+      };
+      if (token) {
+        fetchData(); // Panggil fungsi fetchData setelah mendapatkan token
+        console.log("INI DATA DIRI");
+        // Data
+        columns = [
+          {
+            name: "NIK",
+            selector: (row) => row.nik || "-",
+            cellExport: (row) => row.nik || "-",
+            sortable: true,
+          },
+          {
+            name: "Nama Karyawan",
+            selector: (row) => row.namaKaryawan || "-",
+            cellExport: (row) => row.namaKaryawan || "-",
+            sortable: true,
+          },
+          {
+            name: "Hari",
+            selector: (row) => row.hari || "-",
+            cellExport: (row) => row.hari || "-",
+            sortable: true,
+          },
+          {
+            name: "Tanggal",
+            selector: (row) => formatTimestamp(row.tglMsk) || "-",
+            cellExport: (row) => formatTimestamp(row.tglMsk) || "-",
+            sortable: true,
+          },
+          {
+            name: "Project",
+            selector: (row) =>
+              row.projectId && row.projectId.projectId
+                ? row.projectId.projectId
+                : "-",
+            cellExport: (row) =>
+              row.projectId && row.projectId.projectId
+                ? row.projectId.projectId
+                : "-",
+            sortable: true,
+          },
+          {
+            name: "Jam Masuk",
+            selector: (row) => row.jamMasuk || "-",
+            cellExport: (row) => row.jamMasuk || "-",
+            sortable: true,
+          },
+          {
+            name: "Jam Pulang",
+            selector: (row) => row.jamKeluar || "-",
+            cellExport: (row) => row.jamKeluar || "-",
+            sortable: true,
+          },
+          {
+            name: "Total Jam Kerja",
+            selector: (row) => row.totalJamKerja || "-",
+            cellExport: (row) => row.totalJamKerja || "-",
+            sortable: true,
+          },
+          {
+            name: "Overtime",
+            selector: (row) => row.overtime || "-",
+            cellExport: (row) => row.overtime || "-",
+            sortable: true,
+          },
+          {
+            name: "Catatan",
+            selector: (row) => row.note || "-",
+            cellExport: (row) => row.note || "-",
+            sortable: true,
+          },
+        ];
+
+        dataTable = {
+          columns,
+          data: apiData,
+        };
+      } else {
+        navigate("/login");
+      }
+    }
+  }, [navigate, informationText]);
+
+  // Data
+  columns = [
+    {
+      name: "NIK",
+      selector: (row) => row.nik || "-",
+      cellExport: (row) => row.nik || "-",
+      sortable: true,
+    },
+    {
+      name: "Nama Karyawan",
+      selector: (row) => row.namaKaryawan || "-",
+      cellExport: (row) => row.namaKaryawan || "-",
+      sortable: true,
+    },
+    {
+      name: "Hari",
+      selector: (row) => row.hari || "-",
+      cellExport: (row) => row.hari || "-",
+      sortable: true,
+    },
+    {
+      name: "Tanggal",
+      selector: (row) => formatTimestamp(row.tglMsk) || "-",
+      cellExport: (row) => formatTimestamp(row.tglMsk) || "-",
+      sortable: true,
+    },
+    {
+      name: "Project",
+      selector: (row) =>
+        row.projectId && row.projectId.projectId
+          ? row.projectId.projectId
+          : "-",
+      cellExport: (row) =>
+        row.projectId && row.projectId.projectId
+          ? row.projectId.projectId
+          : "-",
+      sortable: true,
+    },
+    {
+      name: "Jam Masuk",
+      selector: (row) => row.jamMasuk || "-",
+      cellExport: (row) => row.jamMasuk || "-",
+      sortable: true,
+    },
+    {
+      name: "Jam Pulang",
+      selector: (row) => row.jamKeluar || "-",
+      cellExport: (row) => row.jamKeluar || "-",
+      sortable: true,
+    },
+    {
+      name: "Total Jam Kerja",
+      selector: (row) => row.totalJamKerja || "-",
+      cellExport: (row) => row.totalJamKerja || "-",
+      sortable: true,
+    },
+    {
+      name: "Overtime",
+      selector: (row) => row.overtime || "-",
+      cellExport: (row) => row.overtime || "-",
+      sortable: true,
+    },
+    {
+      name: "Catatan",
+      selector: (row) => row.note || "-",
+      cellExport: (row) => row.note || "-",
+      sortable: true,
+    },
+  ];
+
+   dataTable = {
+    columns,
+    data: apiData,
+  };
 
   return (
     <div className="content__container">

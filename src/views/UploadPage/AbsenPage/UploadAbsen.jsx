@@ -17,10 +17,12 @@ const UploadAbsen = () => {
   const [titleForm, setTitleForm] = useState("");
   const [isTelatMasuk, setIsTelatMasuk] = useState(null);
   const [isAbsen, setIsAbsen] = useState(false);
-  const [isAbsenMasuk, setIsAbsenMasuk] = useState("")
-
+  const [isAbsenMasuk, setIsAbsenMasuk] = useState(false)
+  const [isAbsenPulang, setIsAbsenPulang] = useState(false)
+  const [isAbsenPulangCepat, setIsAbsenPulangCepat] = useState(false)
+  const [isAbsenLupaPulang, setIsAbsenLupaPulang] = useState(false)
   const [showAbsenForm, setShowAbsenForm] = useState(false);
-
+  
   const handleShow = () => setShowAbsenForm(true);
   const handleClose = (isAbsen) => {
     setShowAbsenForm(false);
@@ -35,6 +37,7 @@ const UploadAbsen = () => {
       setIsAbsenMasuk(isAbsenMasukStorage)
       console.log("TRUE");
     } else {
+      localStorage.removeItem("isAbsenMasuk")
       console.log("NO TRUE");
     }
 
@@ -44,11 +47,11 @@ const UploadAbsen = () => {
 
 
   useEffect(() => {
-  }, [isAbsenMasukLocalStorage])
+  }, [isAbsenMasukLocalStorage, isAbsenMasukFunc])
 
   const handleAbsenMasuk = () => {
     const now = new Date();
-    const currentHour = 7;
+    const currentHour = now.getHours();
     console.log(currentHour);
     if (currentHour >= 9) {
       setShowAbsenForm(true);
@@ -62,8 +65,31 @@ const UploadAbsen = () => {
   };
 
   const handleAbsenPulang = () => {
-    handleShow();
-  };
+    const now = new Date();
+    const currentHour = 4;
+    console.log(currentHour);
+    
+    if (currentHour >= 9 && currentHour < 18) {
+        setShowAbsenForm(true);
+        setTitleForm("Absen Pulang Cepat");
+        setIsAbsenPulangCepat(true)
+        setIsAbsenPulang(false)
+        setIsAbsenLupaPulang(false)
+    } else if (currentHour >= 18 && currentHour < 24) {
+        setShowAbsenForm(true);
+        setTitleForm("Absen Pulang");
+        setIsAbsenPulang(true)
+        setIsAbsenPulangCepat(false)
+        setIsAbsenLupaPulang(false)
+    } else if (currentHour >= 0 && currentHour < 9) {
+        setShowAbsenForm(true);
+        setTitleForm("Absen Lupa Pulang");
+        setIsAbsenLupaPulang(true)
+        setIsAbsenPulangCepat(false)
+        setIsAbsenPulang(false)
+    }
+};
+
   // Get Data Absen
   useEffect(() => {
     const fetchData = async () => {
@@ -174,24 +200,28 @@ const UploadAbsen = () => {
           handleClose={handleClose}
           isTelatMasuk={isTelatMasuk}
           isAbsenMasukFunc={isAbsenMasukFunc}
+          isAbsenPulang={isAbsenPulang}
+          isAbsenPulangCepat={isAbsenPulangCepat}
+          isAbsenLupaPulang={isAbsenLupaPulang}
+          isAbsenMasuk={isAbsenMasuk}
         />
       )}
       <div className="input__container">
         <div className="left__container__input__absen">
           <div className="top__container__input">
             <div className="top__container__input__right">
-              <Button
-                text="Absen Masuk"
-                className="unggah__button"
-                onClick={handleAbsenMasuk}
-              />
-              {isAbsenMasukLocalStorage && (
+              
+              {isAbsenMasukLocalStorage ? (
                 <Button
                   text="Absen Pulang"
                   className="unggah__button"
                   onClick={handleAbsenPulang}
                 />
-              )}
+              ) : <Button
+              text="Absen Masuk"
+              className="unggah__button"
+              onClick={handleAbsenMasuk}
+            />}
 
               {/* <ExportToExcel apiData={apiData} fileName={"Template_Absent_Treemas"}/> */}
             </div>
