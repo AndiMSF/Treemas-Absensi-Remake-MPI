@@ -24,4 +24,12 @@ public class TimesheetController {
         ResponseEntity<Map<String, Object>> response = service.timesheetGet(jwtToken);
         return response;
     }
+
+    @GetMapping("/get-rekap-timesheet")
+    public ResponseEntity<Map<String, Object>> getTimesheet(
+        @RequestHeader("Authorization") String jwtToken
+    ) {
+        ResponseEntity<Map<String, Object>> response = service.rekapTimesheet(jwtToken);
+        return response;
+    }
 }

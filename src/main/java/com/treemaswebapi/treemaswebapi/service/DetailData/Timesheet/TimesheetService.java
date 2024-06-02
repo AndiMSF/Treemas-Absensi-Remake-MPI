@@ -75,4 +75,41 @@ public class TimesheetService {
                 return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
             }
     }
+
+    /* --------------------------------------------BAGIAN TIMESHEET------------------------------------------------ */
+    public ResponseEntity<Map<String, Object>> rekapTimesheet(@RequestHeader String tokenWithBearer) {
+        try {
+            if (tokenWithBearer.startsWith("Bearer ")) {
+                String token = tokenWithBearer.substring("Bearer ".length());
+                String nik = jwtService.extractUsername(token);
+    
+                List<TimesheetEntity> dataTimesheetnya = timesheetRepository.findAllByNik(nik);
+    
+                if (!dataTimesheetnya.isEmpty()) {
+                    Map<String, Object> response = new HashMap<>();
+                    response.put("success", true);
+                    response.put("message", "Data Timesheet for nik: "+nik+" retrieved successfully");
+                    response.put("data", dataTimesheetnya);
+                    return ResponseEntity.status(HttpStatus.OK).body(response);
+                } else {
+                    Map<String, Object> response = new HashMap<>();
+                    response.put("success", false);
+                    response.put("message", "No Data Timesheet found for nik :" + nik);
+                    return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+                }
+            } else {
+                // Handle the case where the token format is invalid
+                Map<String, Object> response = new HashMap<>();
+                response.put("success", false);
+                response.put("message", "Invalid token format");
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+            }
+        } catch (Exception e) {
+            Map<String, Object> response = new HashMap<>();
+            response.put("success", false);
+            response.put("message", "Failed to retrieve Data Timesheet");
+            response.put("error", e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+        }
+    }
 }
