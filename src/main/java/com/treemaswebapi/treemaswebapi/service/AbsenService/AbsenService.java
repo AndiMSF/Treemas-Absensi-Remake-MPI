@@ -234,6 +234,7 @@ public class AbsenService {
                             absenImgEntity.setId(idAbsen);
                             absenImgEntity.setTglAbsen(LocalDate.parse(LocalDate.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd"))));
                             absenImgEntity.setImage64(request.getPhotoAbsen()!= null ? request.getPhotoAbsen() : null);
+                            absenImgEntity.setImage(request.getImage()!= null ? request.getImage() : null);
                             absenImgEntity.setUsrUpd(nama);
                             absenImgEntity.setDtmUpd(Timestamp.valueOf(LocalDateTime.now()));
     
