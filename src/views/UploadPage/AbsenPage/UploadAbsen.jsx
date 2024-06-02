@@ -66,7 +66,7 @@ const UploadAbsen = () => {
 
   const handleAbsenPulang = () => {
     const now = new Date();
-    const currentHour = 4;
+    const currentHour = now.getHours();
     console.log(currentHour);
     
     if (currentHour >= 9 && currentHour < 18) {

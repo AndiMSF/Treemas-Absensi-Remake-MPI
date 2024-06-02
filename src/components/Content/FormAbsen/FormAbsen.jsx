@@ -46,6 +46,7 @@ const FormAbsen = ({
     nama: "",
     hari: "",
     tgl_absen: null,
+    image64: "",
     image: "",
     gpsLatitudeMsk: "",
     gpsLongitudeMsk: "",
@@ -246,6 +247,8 @@ const FormAbsen = ({
         gpsLongitudeMsk: formData.gpsLongitudeMsk,
         isWfh: formData.isWfh,
         noteTelatMsk: catatanTelatMsk,
+        photoAbsen: formData.image64,
+        image: formData.image
       }
     }
 
@@ -311,7 +314,7 @@ const FormAbsen = ({
       });
       setLoading(false);
       console.log("Response from API:", response);
-      if (isAbsenPulangCepat) {
+      if (isAbsenPulangCepat || isAbsenPulang || isAbsenLupaPulang) {
         isAbsenMasukFunc(false);
       } else {
         isAbsenMasukFunc(true)
@@ -478,7 +481,7 @@ const FormAbsen = ({
             <Form.Group className="upload" controlId="formFile">
               <div className="form__row__left">
                 <Form.Label>
-                  {isTelatMasuk ? "Foto Telat Masuk" : "Foto WFH"}
+                  Foto WFH
                 </Form.Label>
               </div>
               <div className="form__row__right">
