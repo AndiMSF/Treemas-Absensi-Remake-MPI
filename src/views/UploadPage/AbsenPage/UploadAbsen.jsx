@@ -96,7 +96,7 @@ const UploadAbsen = () => {
       console.log("MASUK USE EFFECT");
       try {
         const response = await fetch(
-          "http://localhost:8081/api/upload/get-absen",
+          "http://localhost:8081/api/detail-data/absen-view",
           {
             method: "GET", // Sesuaikan metode sesuai kebutuhan (GET, POST, dll.)
             headers: {
@@ -107,9 +107,10 @@ const UploadAbsen = () => {
         );
         // Tambahkan penanganan kesalahan di sini
         const data = await response.json();
-        if (data.success === true) {
+        console.log(data.status);
+        if (data.status === "Success") {
           setApiData(data.data);
-          console.log(data);
+          console.log("SUCCESS INI DATANYA "+data.data);
         }
       } catch (error) {
         if (error.message.includes("HTTP error!")) {
@@ -141,47 +142,55 @@ const UploadAbsen = () => {
     {
       name: "NIK",
       selector: (row) => row.nik || "-",
-      cellExport: (row) => row.nik || "-",
+      cellExport: (row) => row.title || "-",
       sortable: true,
     },
     {
-      name: "Nama Lengkap",
-      selector: (row) => row.nama || "-",
-      cellExport: (row) => row.nama || "-",
-      sortable: true,
-    },
-    {
-      name: "Tanggal",
-      selector: (row) => row.tglAbsen || "-",
-      cellExport: (row) => row.tglAbsen || "-",
+      name: "Nama Karyawan",
+      selector: (row) => row.namaKaryawan || "-",
+      cellExport: (row) => row.title || "-",
       sortable: true,
     },
     {
       name: "Project",
-      selector: (row) => row.projectId.namaProject || "-",
-      cellExport: (row) => row.projectId.namaProject || "-",
+      selector: (row) => row.projectId?.namaProject || "-",
+      cellExport: (row) => row.title || "-",
       sortable: true,
     },
     {
-      name: "Status",
-      selector: (row) => {
-        if (row.isApprove === "1") {
-          return "Disetujui";
-        } else if (row.isApprove === "0") {
-          return "Ditolak";
-        } else {
-          return "Menunggu";
-        }
-      },
-      cellExport: (row) => {
-        if (row.isApprove === "1") {
-          return "Disetujui";
-        } else if (row.isApprove === "0") {
-          return "Ditolak";
-        } else {
-          return "-";
-        }
-      },
+      name: "Lokasi Masuk",
+      selector: (row) => row.lokasiMasuk || "-",
+      cellExport: (row) => row.title || "-",
+      sortable: true,
+    },
+    {
+      name: "Jam Masuk",
+      selector: (row) => row.jamMasuk || "-",
+      cellExport: (row) => row.title || "-",
+      sortable: true,
+    },
+    {
+      name: "Lokasi Pulang",
+      selector: (row) => row.lokasiPulang || "-",
+      cellExport: (row) => row.title || "-",
+      sortable: true,
+    },
+    {
+      name: "Jam Pulang",
+      selector: (row) => row.jamPulang || "-",
+      cellExport: (row) => row.title || "-",
+      sortable: true,
+    },
+    {
+      name: "Catatan Terlambat",
+      selector: (row) => row.catatanTerlambat || "-",
+      cellExport: (row) => row.title || "-",
+      sortable: true,
+    },
+    {
+      name: "Total Jam Kerja",
+      selector: (row) => row.totalJamKerja || "-",
+      cellExport: (row) => row.title || "-",
       sortable: true,
     },
   ];
@@ -190,7 +199,7 @@ const UploadAbsen = () => {
     columns,
     data: apiData,
   };
-  
+
   return (
     <div className="content__container">
       <Navbar navbarText="Upload / Absen" />

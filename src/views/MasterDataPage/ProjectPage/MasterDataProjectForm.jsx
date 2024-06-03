@@ -30,6 +30,10 @@ const MasterDataProjectForm = () => {
     jamKerja: "",
   });
 
+  // Access the API key from the environment variable
+  const apiKey = import.meta.env.VITE_GMAPS_API_KEY;
+  console.log("API KEY "+apiKey);
+
   const [jamMasuk, setJamMasuk] = useState("10:00");
   const [jamKeluar, setJamKeluar] = useState("10:00");
 
@@ -147,7 +151,7 @@ const MasterDataProjectForm = () => {
   });
 
   const { isLoaded, loadError } = useLoadScript({
-    googleMapsApiKey: "AIzaSyBF6HLnBEPixHrgDUsq8p90K3rVZYgiN_I",
+    googleMapsApiKey: apiKey,
     libraries,
   });
 
@@ -164,7 +168,7 @@ const MasterDataProjectForm = () => {
     const lng = e.latLng.lng();
 
     // Buat URL Geocoding API dengan kunci API dan koordinat latitude-longitude
-    const apiUrl = `https://maps.googleapis.com/maps/api/geocode/json?latlng=${lat},${lng}&key=AIzaSyA1tH4Nq364y6knELo5DwSWIwyvxNRF2b8`;
+    const apiUrl = `https://maps.googleapis.com/maps/api/geocode/json?latlng=${lat},${lng}&key=${apiKey}`;
 
     // Lakukan permintaan ke API Geocoding
     fetch(apiUrl)
