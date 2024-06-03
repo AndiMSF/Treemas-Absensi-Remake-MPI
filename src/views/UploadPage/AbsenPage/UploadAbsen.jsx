@@ -190,6 +190,7 @@ const UploadAbsen = () => {
     columns,
     data: apiData,
   };
+  
   return (
     <div className="content__container">
       <Navbar navbarText="Upload / Absen" />
