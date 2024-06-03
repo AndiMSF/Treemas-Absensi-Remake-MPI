@@ -32,7 +32,6 @@ const MasterDataProjectForm = () => {
 
   // Access the API key from the environment variable
   const apiKey = import.meta.env.VITE_GMAPS_API_KEY;
-  console.log("API KEY "+apiKey);
 
   const [jamMasuk, setJamMasuk] = useState("10:00");
   const [jamKeluar, setJamKeluar] = useState("10:00");
