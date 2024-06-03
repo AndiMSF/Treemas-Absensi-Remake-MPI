@@ -17,9 +17,9 @@ import DetaildataReimburse from './views/DetaildataPage/ReimbursePage/Detaildata
 import DetaildataTimesheet from './views/DetaildataPage/TimesheetPage/DetaildataTimesheet'
 import DetaildataTracking from './views/DetaildataPage/TrackingPage/DetaildataTracking'
 import ManagementUser from './views/ManagementPage/UserPage/ManagementUser'
-import ManagementUserAccess from './views/ManagementPage/UserAccessPage/ManagementUserAccess'
+// import ManagementUserAccess from './views/ManagementPage/UserAccessPage/ManagementUserAccess'
 import ManagementUserMember from './views/ManagementPage/UserMember/ManagementUserMember' 
-import ManualService from './views/ManualServicePage/ManualService'
+// import ManualService from './views/ManualServicePage/ManualService'
 import MasterDataAnnouncement from './views/MasterDataPage/AnnouncementPage/MasterDataAnnouncement'
 import MasterDataAnnouncementForm from './views/MasterDataPage/AnnouncementPage/MasterDataAnnouncementForm'
 import MasterDataAnnouncementEdit from './views/MasterDataPage/AnnouncementPage/MasterDataAnnouncementEdit'
@@ -48,11 +48,10 @@ import ParameterGeneral from './views/ParameterPage/GeneralPage/ParameterGeneral
 import ParameterGeneralEdit from './views/ParameterPage/GeneralPage/ParameterGeneralEdit'
 import ParameterReimburse from './views/ParameterPage/ReimbursePage/ParameterReimburse'
 import ParameterReimburseEdit from './views/ParameterPage/ReimbursePage/ParameterReimburseEdit'
-import ReportDataClaim from './views/ReportDataPage/ClaimPage/ReportDataClaim'
-import ReportDataDetail from './views/ReportDataPage/DetailPage/ReportDataDetail'
-import ReportDataSummary from './views/ReportDataPage/SummaryPage/ReportDataSummary'
+// import ReportDataClaim from './views/ReportDataPage/ClaimPage/ReportDataClaim'
+// import ReportDataDetail from './views/ReportDataPage/DetailPage/ReportDataDetail'
+// import ReportDataSummary from './views/ReportDataPage/SummaryPage/ReportDataSummary'
 import UploadAbsen from './views/UploadPage/AbsenPage/UploadAbsen'
-import UploadSakit from './views/UploadPage/SakitPage/UploadSakit'
 import ProfilePage from "./views/ProfilePage/ProfilePage"
 import ChangePassword from "./views/ChangePassword/ChangePassword"
 import ForgotPass from "./views/LoginPage/ForgetPass"
@@ -117,9 +116,9 @@ function App() {
           <Route path="/detail-data/timesheet-view" element={<Sidebar>{<DetaildataTimesheet />}</Sidebar>} />
           <Route path="/detail-data/tracking-view" element={<Sidebar>{<DetaildataTracking />}</Sidebar>} />
           <Route path="/management/user-view" element={<Sidebar>{<ManagementUser />}</Sidebar>} />
-          <Route path="/management/user-access-view" element={<Sidebar>{<ManagementUserAccess />}</Sidebar>} />
+          {/* <Route path="/management/user-access-view" element={<Sidebar>{<ManagementUserAccess />}</Sidebar>} /> */}
           <Route path="/management/user-member-view" element={<Sidebar>{<ManagementUserMember />}</Sidebar>} />
-          <Route path="/manual-service" element={<Sidebar>{<ManualService />}</Sidebar>} />
+          {/* <Route path="/manual-service" element={<Sidebar>{<ManualService />}</Sidebar>} /> */}
           <Route path="/master-data/announcement-view" element={<Sidebar>{<MasterDataAnnouncement />}</Sidebar>} />
           <Route path="/master-data/announcement-form/add" element={<Sidebar>{<MasterDataAnnouncementForm />}</Sidebar>} />
           <Route path="/master-data/announcement-edit/:id" element={<Sidebar>{<MasterDataAnnouncementEdit />}</Sidebar>} />
@@ -148,12 +147,11 @@ function App() {
           <Route path="/parameter/general-form/edit/:id" element={<Sidebar>{<ParameterGeneralEdit />}</Sidebar>} />
           <Route path="/parameter/reimburse-view" element={<Sidebar>{<ParameterReimburse />}</Sidebar>} />
           <Route path="/parameter/reimburse-form/edit/:id" element={<Sidebar>{<ParameterReimburseEdit />}</Sidebar>} />
-          <Route path="/report-data/claim" element={<Sidebar>{<ReportDataClaim />}</Sidebar>} />
+          {/* <Route path="/report-data/claim" element={<Sidebar>{<ReportDataClaim />}</Sidebar>} />
           <Route path="/report-data/detail" element={<Sidebar>{<ReportDataDetail />}</Sidebar>} />
-          <Route path="/report-data/summary" element={<Sidebar>{<ReportDataSummary />}</Sidebar>} />
+          <Route path="/report-data/summary" element={<Sidebar>{<ReportDataSummary />}</Sidebar>} /> */}
           <Route path="/upload/absen" element={<Sidebar>{<UploadAbsen />}</Sidebar>} />
           <Route path="/upload/penempatan" element={<Sidebar>{<Penempatan />}</Sidebar>} />
-          <Route path="/upload/sakit" element={<Sidebar>{<UploadSakit />}</Sidebar>} />
           <Route path="/users/profile" element={<Sidebar>{<ProfilePage />}</Sidebar>} />          
         </Routes>
     </BrowserRouter>

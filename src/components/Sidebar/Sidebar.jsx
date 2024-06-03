@@ -3,13 +3,14 @@
 import "./sidebar.css";
 import Logo from "../../images/logo-treemas.png";
 import { Link, useNavigate } from "react-router-dom";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import DropdownMenu from "./DropdownMenu/DropdownMenu";
 import axios from "axios";
 
 const Sidebar = ({ children }) => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const navigate = useNavigate();
+  let role
 
   const handleDropdownToggle = (itemName) => {
     setIsParent((prevState) => ({
@@ -18,6 +19,7 @@ const Sidebar = ({ children }) => {
         return acc;
       }, {}),
     }));
+    
 
     setItemsState((prevState) => ({
       ...Object.keys(prevState).reduce((acc, key) => {
@@ -26,6 +28,10 @@ const Sidebar = ({ children }) => {
       }, {}),
     }));
   };
+
+
+    role = localStorage.getItem("role")
+
 
   const handleLogout = async (e) => {
     const token = localStorage.getItem("authToken");
@@ -65,7 +71,7 @@ const Sidebar = ({ children }) => {
     //
     management: {
       user: false,
-      userAccess: false,
+      // userAccess: false,
       userMember: false,
     },
     //
@@ -85,23 +91,18 @@ const Sidebar = ({ children }) => {
       reimburseP: false,
     },
     //
-    reportData: {
-      claimR: false,
-      detail: false,
-      summary: false,
-    },
+
     //
     upload: {
       absenU: false,
       penempatan: false,
-      sakit: false,
     },
   });
 
   const [isParent, setIsParent] = useState({
     detailData: false,
     management: false,
-    manualService: false,
+    // manualService: false,
     masterData: false,
     parameter: false,
     reportData: false,
@@ -187,6 +188,9 @@ const Sidebar = ({ children }) => {
     setIsSidebarOpen(!isSidebarOpen);
   };
 
+  console.log("roled " +role);
+
+
   return (
     <div className={`parent__container`}>
       <div
@@ -215,12 +219,13 @@ const Sidebar = ({ children }) => {
           }`}
         >
           <ul>
-            <li
+            {role === "HEAD"  && (
+              <li
               className={isParent.detailData ? "color" : "non_color"}
               onClick={() => handleDropdown("detailData")}
             >
               <div
-                className={isParent.detailData ? "active" : "non_active"}
+                className={isParent.detailData  ? "active" : "non_active"}
               ></div>
               <p>Detail Data</p>
               <i
@@ -231,7 +236,9 @@ const Sidebar = ({ children }) => {
                 }
               />
             </li>
-            {isParent.detailData && (
+            )}
+            
+            {isParent.detailData && role === "HEAD" && (
               <>
                 <DropdownMenu
                   onClick={() => handleClick("detailData", "absen")}
@@ -266,7 +273,8 @@ const Sidebar = ({ children }) => {
               </>
             )}
 
-            <li
+            {role === "HEAD" && (
+              <li
               className={isParent.management ? "color" : "non_color"}
               onClick={() => handleDropdown("management")}
             >
@@ -282,7 +290,9 @@ const Sidebar = ({ children }) => {
                 }
               />
             </li>
-            {isParent.management && (
+            )}
+            
+            {isParent.management && role === "HEAD" && (
               <>
                 <DropdownMenu
                   onClick={() => handleClick("management", "user")}
@@ -290,12 +300,12 @@ const Sidebar = ({ children }) => {
                   text="User"
                   isActive={itemsState.management.user}
                 />
-                <DropdownMenu
+                {/* <DropdownMenu
                   onClick={() => handleClick("management", "userAccess")}
                   link="/management/user-access-view"
                   text="User Access"
                   isActive={itemsState.management.userAccess}
-                />
+                /> */}
                 <DropdownMenu
                   onClick={() => handleClick("management", "userMember")}
                   link="/management/user-member-view"
@@ -305,13 +315,14 @@ const Sidebar = ({ children }) => {
               </>
             )}
 
-            <DropdownMenu
+            {/* <DropdownMenu
               onClick={() => handleDropdown("manualService")}
               link="/manual-service"
               text="Manual Service"
               isActive={isParent.manualService}
-            />
-            <li
+            /> */}
+            {role === "HEAD" && (
+              <li
               className={isParent.masterData ? "color" : "non_color"}
               onClick={() => handleDropdown("masterData")}
             >
@@ -327,7 +338,9 @@ const Sidebar = ({ children }) => {
                 }
               />
             </li>
-            {isParent.masterData && (
+            )} 
+            
+            {isParent.masterData && role === "HEAD" && (
               <>
                 <DropdownMenu
                   onClick={() => handleClick("masterData", "announcement")}
@@ -379,8 +392,8 @@ const Sidebar = ({ children }) => {
                 />
               </>
             )}
-
-            <li
+            {role === "HEAD" && (
+              <li
               className={isParent.parameter ? "color" : "non_color"}
               onClick={() => handleDropdown("parameter")}
             >
@@ -396,7 +409,9 @@ const Sidebar = ({ children }) => {
                 }
               />
             </li>
-            {isParent.parameter && (
+            )}
+            
+            {isParent.parameter && role === "HEAD" && (
               <>
                 <DropdownMenu
                   onClick={() => handleClick("parameter", "general")}
@@ -413,7 +428,7 @@ const Sidebar = ({ children }) => {
               </>
             )}
 
-            <li
+            {/* <li
               className={isParent.reportData ? "color" : "non_color"}
               onClick={() => handleDropdown("reportData")}
             >
@@ -450,7 +465,7 @@ const Sidebar = ({ children }) => {
                   isActive={itemsState.reportData.summary}
                 />
               </>
-            )}
+            )} */}
 
             <li
               className={isParent.upload ? "color" : "non_color"}
@@ -479,12 +494,6 @@ const Sidebar = ({ children }) => {
                   link="/Upload/penempatan"
                   text="Penempatan"
                   isActive={itemsState.upload.penempatan}
-                />
-                <DropdownMenu
-                  onClick={() => handleClick("upload", "sakit")}
-                  link="/Upload/sakit"
-                  text="Sakit"
-                  isActive={itemsState.upload.sakit}
                 />
               </>
             )}

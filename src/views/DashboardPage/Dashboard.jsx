@@ -56,6 +56,9 @@ const Dashboard = () => {
   const [apiDataMemberTahun, setApiDataMemberTahun] = useState([]);
   const [error, setError] = useState(null);
 
+  
+  const role = localStorage.getItem("role");
+
   // Diri Sendiri Tahunan
   useEffect(() => {
     const fetchData = async () => {
@@ -91,7 +94,7 @@ const Dashboard = () => {
     } else {
       navigate("/login");
     }
-  }, [navigate, isToken]);
+  }, [navigate, isToken, role]);
 
   // Member Harian
   useEffect(() => {
@@ -110,7 +113,7 @@ const Dashboard = () => {
         const data = await response.json();
         if (data.status === "Success") {
           setApiDataMemberHari(data.data);
-          console.log(data);
+          console.log("API DATA MEMBER HARI " + JSON.stringify(data, null, 2));
         } else {
           setError("Failed to fetch data");
         }
@@ -174,23 +177,23 @@ const Dashboard = () => {
   const data = [
     {
       name: "Masuk",
-      uv: apiData.totalMasuk,
+      uv: role === "HEAD" ? apiDataMemberHari.totalMasuk : apiData.totalMasuk,
     },
     {
       name: "Terlambat",
-      uv: apiData.totalTelatMasuk,
+      uv: role === "HEAD" ? apiDataMemberHari.totalTelatMasuk : apiData.totalTelatMasuk,
     },
     {
       name: "Absen",
-      uv: apiData.totalTidakMasuk,
+      uv: role === "HEAD" ? apiDataMemberHari.totalTidakMasuk : apiData.totalTidakMasuk,
     },
     {
       name: "Cuti",
-      uv: apiData.totalCuti,
+      uv: role === "HEAD" ? apiDataMemberHari.totalCuti : apiData.totalCuti,
     },
     {
       name: "Sakit",
-      uv: apiData.totalSakit,
+      uv: role === "HEAD" ? apiDataMemberHari.totalSakit : apiData.totalSakit,
     },
   ];
 
@@ -302,7 +305,7 @@ const Dashboard = () => {
 
       <div className="grafik__data__member">
         <div className="left__container__dashboard">
-          <h1>Grafik Data Member / Hari</h1>
+          <h1>{role === "HEAD" ? "Grafik Data Member / Hari" : ("Grafik Data Diri")}</h1>
           <div className="hari">
             <h2>{getDay}</h2>
             <div className="right">
@@ -341,52 +344,53 @@ const Dashboard = () => {
 
           <div className="vertikal_line"></div>
         </div>
-
-        <div className="right__container__dashboard">
-          <div className="box1">
-            <h1>Masuk</h1>
-            <h2>{apiDataMemberHari.totalMasuk}</h2>
+          <div className="right__container__dashboard">
+            <div className="box1">
+              <h1>Masuk</h1>
+              <h2>{role === "HEAD" ? apiDataMemberHari.totalMasuk : apiData.totalMasuk}</h2>
+            </div>
+            <div className="horizontal_line"></div>
+            <div className="box1">
+              <h1>Terlambat</h1>
+              <h2>{role === "HEAD" ? apiDataMemberHari.totalTelatMasuk : apiData.totalTelatMasuk}</h2>
+            </div>
+            <div className="horizontal_line"></div>
+            <div className="box1">
+              <h1>Tidak Masuk</h1>
+              <h2>{role === "HEAD" ? apiDataMemberHari.totalTidakMasuk : apiData.totalTidakMasuk}</h2>
+            </div>
+            <div className="horizontal_line"></div>
+            <div className="box1">
+              <h1>Cuti</h1>
+              <h2>{role === "HEAD" ? apiDataMemberHari.totalCuti : apiData.totalCuti}</h2>
+            </div>
+            <div className="horizontal_line"></div>
+            <div className="box1">
+              <h1>Sakit</h1>
+              <h2>{role === "HEAD" ? apiDataMemberHari.totalSakit : apiData.totalSakit}</h2>
+            </div>
           </div>
-          <div className="horizontal_line"></div>
-          <div className="box1">
-            <h1>Terlambat</h1>
-            <h2>{apiDataMemberHari.totalTelatMasuk}</h2>
-          </div>
-          <div className="horizontal_line"></div>
-          <div className="box1">
-            <h1>Tidak Masuk</h1>
-            <h2>{apiDataMemberHari.totalTidakMasuk}</h2>
-          </div>
-          <div className="horizontal_line"></div>
-          <div className="box1">
-            <h1>Cuti</h1>
-            <h2>{apiDataMemberHari.totalCuti}</h2>
-          </div>
-          <div className="horizontal_line"></div>
-          <div className="box1">
-            <h1>Sakit</h1>
-            <h2>{apiDataMemberHari.totalSakit}</h2>
-          </div>
-        </div>
       </div>
-      <div className="table__container">
-        <div className="data__member">
-          <h1>Data Member / {currentYear}</h1>
+      {role === "HEAD" && (
+        <div className="table__container">
+          <div className="data__member">
+            <h1>Data Member / {currentYear}</h1>
+          </div>
+          <DataTableExtensions {...dataTable}>
+            <DataTable
+              columns={columns}
+              data={apiDataMemberTahun}
+              noHeader
+              defaultSortField="NIK"
+              sortIcon={<SortIcon />}
+              defaultSortAsc={true}
+              pagination
+              highlightOnHover
+              dense
+            />
+          </DataTableExtensions>
         </div>
-        <DataTableExtensions {...dataTable}>
-          <DataTable
-            columns={columns}
-            data={apiDataMemberTahun}
-            noHeader
-            defaultSortField="NIK"
-            sortIcon={<SortIcon />}
-            defaultSortAsc={true}
-            pagination
-            highlightOnHover
-            dense
-          />
-        </DataTableExtensions>
-      </div>
+      )}
     </div>
   );
 };

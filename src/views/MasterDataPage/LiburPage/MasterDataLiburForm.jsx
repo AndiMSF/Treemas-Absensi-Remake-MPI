@@ -8,11 +8,12 @@ import Alert from "react-bootstrap/Alert";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import HashLoader from "react-spinners/HashLoader";
+import BoxInput from "../../../components/Elements/BoxInput/BoxInput";
 
 const MasterDataLiburForm = () => {
   const [showAlert, setShowAlert] = useState(false);
   const [formData, setFormData] = useState({
-    tglLibur: new Date(),
+    tglLibur: "",
     keterangan: "",
   });
   const [cutiBersama, setCutiBersama] = useState(false); // State untuk checkbox Cuti Bersama
@@ -45,8 +46,9 @@ const MasterDataLiburForm = () => {
     }
   }, [navigate]);
 
-  const handleDateChange = (date) => {
-    setFormData({ ...formData, tglLibur: date });
+  const handleDateChange = (event, field) => {
+    const { value } = event.target;
+    setFormData({ ...formData, [field]: value });
   };
 
   const handleInputChange = (event, field) => {
@@ -92,16 +94,6 @@ const MasterDataLiburForm = () => {
           <HashLoader loading={loading} size={90} color="#d6e0de" />
         </div>
       )}
-      {/* Display the alert if showAlert is true */}
-      {showAlert && (
-        <Alert
-          variant="success"
-          onClose={() => setShowAlert(false)}
-          dismissible
-        >
-          <Alert.Heading>Libur Created</Alert.Heading>
-        </Alert>
-      )}
       <div className="form__container">
         <div className="form__container__top">
           <h1>Libur Form</h1>
@@ -115,12 +107,12 @@ const MasterDataLiburForm = () => {
               </p>
             </div>
             <div className="form__row__right">
-              <DatePicker
-                showIcon
-                selected={formData.tglLibur}
-                onChange={handleDateChange}
-                dateFormat=" d MMMM yyyy"
+            <BoxInput
+                placeholder="Tanggal Libur "
+                value={formData.tglLibur}
+                onChange={(e) => handleDateChange(e, "tglLibur")}
               />
+
             </div>
           </div>
           <div className="form__row">

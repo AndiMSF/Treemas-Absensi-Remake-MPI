@@ -110,7 +110,7 @@ const UploadAbsen = () => {
         console.log(data.status);
         if (data.status === "Success") {
           setApiData(data.data);
-          console.log("SUCCESS INI DATANYA "+data.data);
+          console.log("SUCCESS INI DATANYA "+JSON.stringify(data.data,null,2));
         }
       } catch (error) {
         if (error.message.includes("HTTP error!")) {

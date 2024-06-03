@@ -313,7 +313,7 @@ const FormAbsen = ({
         icon: "success",
       });
       setLoading(false);
-      console.log("Response from API:", response);
+      console.log("Response from API:", JSON.stringify(response,null,2));
       if (isAbsenPulangCepat || isAbsenPulang || isAbsenLupaPulang) {
         isAbsenMasukFunc(false);
       } else {

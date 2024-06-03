@@ -67,7 +67,7 @@ const ParameterReimburse = () => {
     },
     {
       name: "Nominal",
-      selector: (row) => "Rp. " + row.nominal || "-",
+      selector: (row) =>  row.nominal || "-",
       cellExport: (row) => row.title || "-",
       sortable: true,
     },
