@@ -96,7 +96,7 @@ const UploadAbsen = () => {
       console.log("MASUK USE EFFECT");
       try {
         const response = await fetch(
-          "http://localhost:8081/api/detail-data/absen-view",
+          "http://localhost:8081/api/detail-data/absen-view-sendiri",
           {
             method: "GET", // Sesuaikan metode sesuai kebutuhan (GET, POST, dll.)
             headers: {

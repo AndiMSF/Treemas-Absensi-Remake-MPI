@@ -61,8 +61,9 @@ const LoginPage = () => {
         nik = localStorage.setItem("nik", nik);
         localStorage.setItem("authToken", bearerToken);
         localStorage.setItem("role", response.data.data.user.role)
+        console.log("data is pass chg "+response.data.data.user.is_pass_chg);
 
-        if (response.data.data.user.is_pass_chg === "0") {
+        if (response.data.data.user.is_pass_chg === "0" || response.data.data.user.is_pass_chg === null) {
           navigate("/change-password");
         } else {
           navigate("/");
