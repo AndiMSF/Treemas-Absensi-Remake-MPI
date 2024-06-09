@@ -101,6 +101,7 @@ public class AbsenServiceWeb {
                 absenData.put("isWfh", absen.getIsWfh());
                 absenData.put("isLembur", absen.getIsLembur());
                 absenData.put("projectId", absen.getProjectId());
+                absenData.put("isAbsen", absen.getIsAbsen());
                 // Cari role dari setiap nik di table sys_user
                 Optional<SysUserEntity> sysUserOptional = sysUserRepository.findByUserId(absen.getNik());
                 if (sysUserOptional.isPresent()) {

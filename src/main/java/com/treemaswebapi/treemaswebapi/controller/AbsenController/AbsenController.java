@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.treemaswebapi.treemaswebapi.controller.AbsenController.request.AbsenRequest;
 import com.treemaswebapi.treemaswebapi.controller.AbsenController.request.AddPenempatanReq;
 import com.treemaswebapi.treemaswebapi.controller.AbsenController.request.UpdatePenempatanReq;
+import com.treemaswebapi.treemaswebapi.controller.MasterData.Claim.request.TipeClaimRequest;
 import com.treemaswebapi.treemaswebapi.controller.MemberController.request.MemberRequest;
 import com.treemaswebapi.treemaswebapi.service.AbsenService.AbsenService;
 import com.treemaswebapi.treemaswebapi.service.AbsenService.MemberService;
@@ -158,4 +159,24 @@ public class AbsenController {
         
         return absenService.masukinNama(tokenWithBearer);
     }
+
+    // Get Absen isApprove
+    @GetMapping("/absen-approval")
+    public ResponseEntity<Map<String, Object>> absenApproval(
+        @RequestHeader("Authorization") String jwtToken
+    ) {
+        return absenService.absenApproval(jwtToken);
+    }
+
+    // Approve
+    @PutMapping("/approve/{id}")
+    public ResponseEntity<Map<String, Object>> absenApprovalApprove(
+        @RequestHeader("Authorization") String jwtToken,
+        @PathVariable Long id
+
+    ) {
+        ResponseEntity<Map<String, Object>> response = absenService.absenApprovalApprove(jwtToken, id);
+        return response;    
+    }
+    
 }   

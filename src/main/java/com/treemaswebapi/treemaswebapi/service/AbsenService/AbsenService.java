@@ -24,18 +24,23 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 import com.treemaswebapi.treemaswebapi.config.JwtService;
 import com.treemaswebapi.treemaswebapi.controller.AbsenController.request.AbsenRequest;
+import com.treemaswebapi.treemaswebapi.controller.MasterData.Claim.request.TipeClaimRequest;
 import com.treemaswebapi.treemaswebapi.entity.ProjectEntity.ProjectEntity;
 import com.treemaswebapi.treemaswebapi.entity.ReimburseEntity.ReimburseAppEntity;
 import com.treemaswebapi.treemaswebapi.entity.SysUserEntity.SysUserEntity;
 import com.treemaswebapi.treemaswebapi.entity.TimesheetEntity.TimesheetEntity;
+import com.treemaswebapi.treemaswebapi.entity.AbsenEntity.AbsenAppEntity;
 import com.treemaswebapi.treemaswebapi.entity.AbsenEntity.AbsenEntity;
 import com.treemaswebapi.treemaswebapi.entity.AbsenEntity.AbsenImgEntity;
 import com.treemaswebapi.treemaswebapi.entity.AbsenEntity.AbsenPulangAppEntity;
 import com.treemaswebapi.treemaswebapi.controller.AbsenController.AbsenBelumPulangResponse;
 import com.treemaswebapi.treemaswebapi.entity.AbsenEntity.AbsenTrackingEntity;
+import com.treemaswebapi.treemaswebapi.entity.ClaimEntity.TipeClaimEntity;
 import com.treemaswebapi.treemaswebapi.entity.CutiEntity.CutiEntity;
+import com.treemaswebapi.treemaswebapi.entity.KaryawanEntity.KaryawanEntity;
 import com.treemaswebapi.treemaswebapi.entity.PenempatanEntity.PenempatanEntity;
 import com.treemaswebapi.treemaswebapi.entity.ProjectEntity.ProjectDetails;
+import com.treemaswebapi.treemaswebapi.repository.AbsenAppRepository;
 import com.treemaswebapi.treemaswebapi.repository.AbsenImgRepository;
 import com.treemaswebapi.treemaswebapi.repository.AbsenPulangAppRepository;
 import com.treemaswebapi.treemaswebapi.repository.AbsenRepository;
@@ -68,6 +73,7 @@ public class AbsenService {
     private final ReimburseAppRepository reimburseAppRepository;
     private final CutiRepository cutiRepository;
     private final SysUserRepository sysUserRepository;
+    private final AbsenAppRepository absenAppRepository;
 
     private static String getIndonesianDayOfWeek(DayOfWeek dayOfWeek){
         Map<String,String> indonesianDayMap = new HashMap<>();
@@ -151,7 +157,13 @@ public class AbsenService {
                     Timestamp currentTimestamp = Timestamp.valueOf(LocalDateTime.now());
                     if("1".equals(request.getIsOther())){
                         LocalTime jamSekarang = LocalTime.parse(LocalTime.now().format(DateTimeFormatter.ofPattern("HH:mm:ss")));
-                        AbsenEntity absenEntity = absenRepository.findByTglAbsenAndNik(tanggalIni, nik);
+                        Optional<AbsenEntity> absenOptional = absenRepository.findByTglAbsenAndNik(tanggalIni, nik);
+                        AbsenEntity absenEntity;
+                        if (absenOptional.isPresent()) {
+                            absenEntity = absenOptional.get();
+                        } else {
+                            absenEntity = new AbsenEntity();
+                        }
                         absenEntity.setNik(nik);
                         absenEntity.setJamMsk(jamSekarang);
                         absenEntity.setNama(nama);
@@ -301,12 +313,13 @@ public class AbsenService {
                     LocalDateTime sekarangBanget = LocalDateTime.now();
                     Timestamp jamIni = Timestamp.valueOf(sekarangBanget);
                     AbsenEntity existingAbsenEntity = existingAbsenRecords.get(0);
+                    
                     // Make separate response
                     // save ke absenEntity
                     existingAbsenEntity.setNotePekerjaan(request.getNotePekerjaan());
                     existingAbsenEntity.setGpsLatitudePlg(request.getGpsLatitudePlg());
                     existingAbsenEntity.setGpsLongitudePlg(request.getGpsLongitudePlg());
-                    existingAbsenEntity.setLokasiPlg(request.getLokasiPlg());
+                    existingAbsenEntity.setLokasiPlg(request.getLokasiPlg() == null || request.getLokasiPlg().isEmpty() ? existingAbsenEntity.getLokasiMsk() : request.getLokasiPlg());
                     existingAbsenEntity.setJarakPlg(request.getJarakPlg());
                     existingAbsenEntity.setJamPlg(jamSekarang);
                     existingAbsenEntity.setNotePlgCepat(request.getNotePlgCepat());
@@ -340,13 +353,9 @@ public class AbsenService {
                     absenTrackingEntity.setTglAbsen(LocalDate.parse(LocalDate.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd"))));
                     absenTrackingEntity.setGpsLatitudePlg(request.getGpsLatitudePlg());
                     absenTrackingEntity.setGpsLongitudePlg(request.getGpsLongitudePlg());
-                    absenTrackingEntity.setLokasiPlg(request.getLokasiPlg());
+                    absenTrackingEntity.setLokasiPlg(request.getLokasiPlg() == null || request.getLokasiPlg().isEmpty() ? existingAbsenEntity.getLokasiMsk() : request.getLokasiPlg());
                     absenTrackingEntity.setJarakPlg(request.getJarakPlg());
                     absenTrackingEntity.setNotePekerjaan(request.getNotePekerjaan());
-                    absenTrackingEntity.setGpsLatitudePlg(request.getGpsLatitudePlg());
-                    absenTrackingEntity.setGpsLongitudePlg(request.getGpsLongitudePlg());
-                    absenTrackingEntity.setLokasiPlg(request.getLokasiPlg());
-                    absenTrackingEntity.setJarakPlg(request.getJarakPlg());
                     absenTrackingEntity.setJamPlg(jamSekarang);
                     absenTrackingEntity.setNotePlgCepat(request.getNotePlgCepat());
                     if (request.getNoteOther() != null) {
@@ -1245,4 +1254,138 @@ public class AbsenService {
         response.put("success", "yoi");
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
+
+    public ResponseEntity<Map<String, Object>> absenApproval(@RequestHeader("Authorization") String jwtToken) {
+        try {
+            // Cari siapa yang akses api ini
+            String token = jwtToken.substring(7);
+            String userToken = jwtService.extractUsername(token);
+            List<AbsenPulangAppEntity> absenList  = absenPulangAppRepository.findByIsApproveIsNull();
+            List<Map<String, Object>> responseData = new ArrayList<>();
+
+            for (AbsenPulangAppEntity absen : absenList) {
+                Map<String, Object> absenData = new HashMap<>();
+                absenData.put("id", absen.getId());
+                absenData.put("nik", absen.getNik());
+                absenData.put("namaKaryawan", absen.getNama());
+                absenData.put("tanggal", absen.getTglAbsen());
+                absenData.put("lokasiMasuk", absen.getLokasiMsk());
+                absenData.put("jamMasuk", absen.getJamMsk());
+                absenData.put("lokasiPulang", absen.getLokasiPlg());
+                absenData.put("jamPulang", absen.getJamPlg());
+                absenData.put("catatanTerlambat", absen.getNoteTelatMsk());
+                absenData.put("totalJamKerja", absen.getTotalJamKerja());
+                absenData.put("isCuti", absen.getIsCuti());
+                absenData.put("isOther", absen.getIsOther());
+                absenData.put("isSakit", absen.getIsSakit());
+                absenData.put("isWfh", absen.getIsWfh());
+                absenData.put("isLembur", absen.getIsLembur());
+                absenData.put("projectId", absen.getProjectId());
+                absenData.put("isApprove", absen.getIsApprove());
+                // Cari role dari setiap nik di table sys_user
+                Optional<SysUserEntity> sysUserOptional = sysUserRepository.findByUserId(absen.getNik());
+                if (sysUserOptional.isPresent()) {
+                    SysUserEntity sysUser = sysUserOptional.get();
+                    absenData.put("role", sysUser.getRole());
+                }
+
+                    responseData.add(absenData);
+                }
+        
+            Map<String, Object> response = new HashMap<>();
+            response.put("status", "Success");
+            response.put("message", "Retrieved");
+            response.put("data", responseData);
+        
+            return ResponseEntity.status(HttpStatus.OK).body(response);
+        } catch (Exception e) {
+            Map<String, Object> response = new HashMap<>();
+            response.put("status", "Failed");
+            response.put("message", "Failed to retrieve absen");
+            response.put("error", e.getMessage());
+            System.out.println(e);
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+        }
+    }
+
+    public ResponseEntity<Map<String, Object>> absenApprovalApprove(
+        @RequestHeader("Authorization") String jwtToken,
+        Long id
+    ) {
+        try {
+            // Extract username from token
+            String token = jwtToken.substring(7);
+            String userToken = jwtService.extractUsername(token);
+
+            Optional<KaryawanEntity> user = karyawanRepository.findByNik(userToken);
+            String nama = user.isPresent() ? user.get().getNama() : "";
+
+            // Find AbsenPulangAppEntity by ID
+            Optional<AbsenPulangAppEntity> absenPulangAppOptional = absenPulangAppRepository.findById(id);
+            if (absenPulangAppOptional.isPresent()) {
+                long currentTimeMillis = System.currentTimeMillis();
+                Timestamp dtmUpd = new Timestamp(currentTimeMillis - (currentTimeMillis % 1000));
+                AbsenPulangAppEntity absenPulangApp = absenPulangAppOptional.get();
+                absenPulangApp.setIsAbsen("1");
+                absenPulangApp.setIsApprove("1");
+                absenPulangApp.setUsrApp1(nama);
+                absenPulangApp.setDtmApp1(dtmUpd);
+
+                // Calculate total work hours and check if overtime
+                LocalTime jamMsk = absenPulangApp.getJamMsk();
+                LocalTime jamPlg = absenPulangApp.getJamPlg();
+                if (jamMsk != null && jamPlg != null) {
+                    BigDecimal hoursPart = new BigDecimal(Duration.between(jamMsk, jamPlg).toHoursPart());
+                    absenPulangApp.setTotalJamKerja(hoursPart);
+                    if (hoursPart.compareTo(new BigDecimal(9)) > 0) {
+                        absenPulangApp.setIsAbsen("1");
+                        absenPulangApp.setIsLembur("1");
+                    } else {
+                        absenPulangApp.setIsAbsen("1");
+                        absenPulangApp.setIsLembur("0");
+                    }
+                }
+
+                absenPulangAppRepository.save(absenPulangApp);
+
+                // Find and update corresponding AbsenEntity
+                Optional<AbsenEntity> absenOptional = absenRepository.findByTglAbsenAndNik(absenPulangApp.getTglAbsen(), absenPulangApp.getNik() );
+                if (absenOptional.isPresent()) {
+                    AbsenEntity absen = absenOptional.get();
+                    absen.setLokasiPlg(absenPulangApp.getLokasiPlg());
+                    absen.setJamPlg(absenPulangApp.getJamPlg());
+                    absen.setIsAbsen(absenPulangApp.getIsAbsen());
+                    absen.setIsLembur(absenPulangApp.getIsLembur());
+                    absen.setNotePekerjaan(absenPulangApp.getNotePekerjaan());
+                    absen.setNotePlgCepat(absenPulangApp.getNotePlgCepat());
+                    absen.setNoteTelatMsk(absenPulangApp.getNoteTelatMsk());
+                    absen.setUsrApp(nama);
+                    absen.setDtmApp(dtmUpd);
+
+                    absenRepository.save(absen);
+                }
+
+                Map<String, Object> response = new HashMap<>();
+                response.put("status", "Success");
+                response.put("message", "Absen Approved");
+                response.put("data", absenPulangApp);
+
+                return ResponseEntity.status(HttpStatus.OK).body(response);
+            } else {
+                Map<String, Object> response = new HashMap<>();
+                response.put("status", "Failed");
+                response.put("message", "Tipe claim not found");
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+            }
+
+        } catch (Exception e) {
+            Map<String, Object> response = new HashMap<>();
+            response.put("status", "Failed");
+            response.put("message", "Failed To Approve Absen");
+            response.put("error", e.getMessage());
+            System.out.println(e);
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+        }
+    }
+
 }
