@@ -1,6 +1,4 @@
-/* eslint-disable no-undef */
 /* eslint-disable no-unused-vars */
-import "./absen.css";
 import Navbar from "../../../components/Content/Navbar/Navbar";
 import Button from "../../../components/Elements/Buttons/Button";
 import { useEffect, useState } from "react";
@@ -9,86 +7,11 @@ import DataTable from "react-data-table-component";
 import SortIcon from "@material-ui/icons/ArrowDownward";
 import DataTableExtensions from "react-data-table-component-extensions";
 import "react-data-table-component-extensions/dist/index.css";
+import Swal from "sweetalert2";
 
-import FormAbsen from "../../../components/Content/FormAbsen/FormAbsen";
-const UploadAbsen = () => {
+const AbsenApprovalPage = () => {
   const navigate = useNavigate();
   const [apiData, setApiData] = useState([]);
-  const [titleForm, setTitleForm] = useState("");
-  const [isTelatMasuk, setIsTelatMasuk] = useState(null);
-  const [isAbsen, setIsAbsen] = useState(false);
-  const [isAbsenMasuk, setIsAbsenMasuk] = useState(false)
-  const [isAbsenPulang, setIsAbsenPulang] = useState(false)
-  const [isAbsenPulangCepat, setIsAbsenPulangCepat] = useState(false)
-  const [isAbsenLupaPulang, setIsAbsenLupaPulang] = useState(false)
-  const [showAbsenForm, setShowAbsenForm] = useState(false);
-  
-  const handleShow = () => setShowAbsenForm(true);
-  const handleClose = (isAbsen) => {
-    setShowAbsenForm(false);
-    setIsAbsen(isAbsen);
-    localStorage.removeItem("alamatProject");
-    console.log("HI SAYA SUDAH ABSEN");
-  };
-
-  const isAbsenMasukFunc = (isAbsenMasukStorage) => {
-    if(isAbsenMasukStorage === true) {
-      localStorage.setItem("isAbsenMasuk", true)
-      setIsAbsenMasuk(isAbsenMasukStorage)
-      console.log("TRUE");
-    } else {
-      localStorage.removeItem("isAbsenMasuk")
-      console.log("NO TRUE");
-    }
-
-  }
-
-  const isAbsenMasukLocalStorage = localStorage.getItem("isAbsenMasuk")
-
-
-  useEffect(() => {
-  }, [isAbsenMasukLocalStorage, isAbsenMasukFunc])
-
-  const handleAbsenMasuk = () => {
-    const now = new Date();
-    const currentHour = now.getHours();
-    console.log(currentHour);
-    if (currentHour >= 9  && currentHour < 24) {
-      setShowAbsenForm(true);
-      setTitleForm("Absen Telat Masuk");
-      setIsTelatMasuk(true);
-    } else if (currentHour < 9) {
-      setShowAbsenForm(true);
-      setTitleForm("Absen Masuk");
-      setIsTelatMasuk(false);
-    }
-  };
-
-  const handleAbsenPulang = () => {
-    const now = new Date();
-    const currentHour = now.getHours();
-    console.log(currentHour);
-    
-    if (currentHour >= 9 && currentHour < 18) {
-        setShowAbsenForm(true);
-        setTitleForm("Absen Pulang Cepat");
-        setIsAbsenPulangCepat(true)
-        setIsAbsenPulang(false)
-        setIsAbsenLupaPulang(false)
-    } else if (currentHour >= 18 && currentHour < 24) {
-        setShowAbsenForm(true);
-        setTitleForm("Absen Pulang");
-        setIsAbsenPulang(true)
-        setIsAbsenPulangCepat(false)
-        setIsAbsenLupaPulang(false)
-    } else if (currentHour >= 0 && currentHour < 9) {
-        setShowAbsenForm(true);
-        setTitleForm("Absen Lupa Pulang");
-        setIsAbsenLupaPulang(true)
-        setIsAbsenPulangCepat(false)
-        setIsAbsenPulang(false)
-    }
-};
 
   // Get Data Absen
   useEffect(() => {
@@ -96,7 +19,7 @@ const UploadAbsen = () => {
       console.log("MASUK USE EFFECT");
       try {
         const response = await fetch(
-          "http://localhost:8081/api/detail-data/absen-view-sendiri",
+          "http://localhost:8081/api/absen/absen-approval",
           {
             method: "GET", // Sesuaikan metode sesuai kebutuhan (GET, POST, dll.)
             headers: {
@@ -110,7 +33,9 @@ const UploadAbsen = () => {
         console.log(data.status);
         if (data.status === "Success") {
           setApiData(data.data);
-          console.log("SUCCESS INI DATANYA "+JSON.stringify(data.data,null,2));
+          console.log(
+            "SUCCESS INI DATANYA " + JSON.stringify(data.data, null, 2)
+          );
         }
       } catch (error) {
         if (error.message.includes("HTTP error!")) {
@@ -131,6 +56,7 @@ const UploadAbsen = () => {
     };
 
     const token = localStorage.getItem("authToken");
+    console.log("INI TOKEN "+token);
     if (token) {
       fetchData(); // Panggil fungsi fetchData setelah mendapatkan token
     } else {
@@ -139,7 +65,7 @@ const UploadAbsen = () => {
   }, [navigate]);
 
   const getRowColor = (status) => {
-    console.log("STATUS "+status);
+    console.log("STATUS " + status);
     switch (status) {
       case "DISETUJUI":
         return {
@@ -175,7 +101,68 @@ const UploadAbsen = () => {
         return {}; // Default style
     }
   };
-  
+
+  const handleClick = (id) => {
+    console.log(`approve button clicked for ID: ${id}`);
+    // Tambahkan logika penghapusan data di sini, atau panggil API approve jika diperlukan
+    Swal.fire({
+      title: "Are you sure?",
+      text: "You won't be able to revert this!",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#3085d6",
+      cancelButtonColor: "#d33",
+      confirmButtonText: "Yes, approve it!",
+    }).then(async (result) => {
+      if (result.isConfirmed) {
+        // Jika yes akan
+        const token = localStorage.getItem("authToken");
+        if (!token) {
+          console.error("Token is not available");
+          return;
+        }
+
+        try {
+          const response = await fetch(
+            `http://localhost:8081/api/absen/approve/${id}`,
+            {
+              method: "PUT",
+              headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${token}`,
+              },
+            }
+          );
+
+          const data = await response.json();
+          if (response.ok) {
+            // Berhasil dihapus
+            Swal.fire({
+              title: "Approved!",
+              text: "Absen has been approved.",
+              icon: "success",
+            });
+            setApiData((prevData) => prevData.filter((item) => item.id !== id));
+          } else {
+            // Gagal dihapus
+            Swal.fire({
+              title: "Error!",
+              text: data.message, // Tampilkan pesan error dari server
+              icon: "error",
+            });
+          }
+        } catch (error) {
+          // Error selama proses penghapusan
+          console.error("Error approving data:", error);
+          Swal.fire({
+            title: "Error!",
+            text: "An error occurred while approving the data.",
+            icon: "error",
+          });
+        }
+      }
+    });
+  };
 
   const columns = [
     {
@@ -244,10 +231,27 @@ const UploadAbsen = () => {
         }
       },
       cell: (row) => {
-        const status = row.isAbsen === "1" ? "DISETUJUI" : row.isAbsen === "0" ? "DITOLAK" : "MENUNGGU";
+        const status =
+          row.isAbsen === "1"
+            ? "DISETUJUI"
+            : row.isAbsen === "0"
+            ? "DITOLAK"
+            : "MENUNGGU";
         return <div style={getRowColor(status)}>{status}</div>;
       },
       sortable: true,
+    },
+    {
+      name: "Action",
+      sortable: false,
+      cell: (d) => (
+          <i
+            key={`approve-${d.id}`}
+            onClick={() => handleClick(d.id)}
+            style={{ cursor: "pointer" }}
+            className="first fas fa-check-square"
+          ></i>
+      ),
     },
   ];
 
@@ -255,62 +259,24 @@ const UploadAbsen = () => {
     columns,
     data: apiData,
   };
-
-  return (
-    <div className="content__container">
-      <Navbar navbarText="Upload / Absen" />
-      {showAbsenForm && (
-        <FormAbsen
-          title={titleForm}
-          show={showAbsenForm}
-          handleClose={handleClose}
-          isTelatMasuk={isTelatMasuk}
-          isAbsenMasukFunc={isAbsenMasukFunc}
-          isAbsenPulang={isAbsenPulang}
-          isAbsenPulangCepat={isAbsenPulangCepat}
-          isAbsenLupaPulang={isAbsenLupaPulang}
-          isAbsenMasuk={isAbsenMasuk}
-        />
-      )}
-      <div className="input__container">
-        <div className="left__container__input__absen">
-          <div className="top__container__input">
-            <div className="top__container__input__right">
-              
-              {isAbsenMasukLocalStorage ? (
-                <Button
-                  text="Absen Pulang"
-                  className="unggah__button"
-                  onClick={handleAbsenPulang}
-                />
-              ) : <Button
-              text="Absen Masuk"
-              className="unggah__button"
-              onClick={handleAbsenMasuk}
-            />}
-
-              {/* <ExportToExcel apiData={apiData} fileName={"Template_Absent_Treemas"}/> */}
-            </div>
-          </div>
-        </div>
-      </div>
-      <div className="table__container">
-        <DataTableExtensions {...dataTable}>
-          <DataTable
-            columns={columns}
-            data={apiData}
-            noHeader
-            defaultSortField="nik"
-            sortIcon={<SortIcon />}
-            defaultSortAsc={true}
-            pagination
-            highlightOnHover
-            dense
-          />
-        </DataTableExtensions>
-      </div>
-    </div>
-  );
+  return <div className="content__container">
+  <Navbar navbarText="Upload / Absen Approval" />
+  <div className="table__container">
+    <DataTableExtensions {...dataTable}>
+      <DataTable
+        columns={columns}
+        data={apiData}
+        noHeader
+        defaultSortField="nik"
+        sortIcon={<SortIcon />}
+        defaultSortAsc={true}
+        pagination
+        highlightOnHover
+        dense
+      />
+    </DataTableExtensions>
+  </div>
+</div>;
 };
 
-export default UploadAbsen;
+export default AbsenApprovalPage;

@@ -1,3 +1,5 @@
+/* eslint-disable no-unused-vars */
+/* eslint-disable react/prop-types */
 import "./formAbsen.css";
 import { useEffect, useState } from "react";
 import Button from "react-bootstrap/Button";

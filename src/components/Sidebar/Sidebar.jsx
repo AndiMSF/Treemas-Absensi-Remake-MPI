@@ -95,6 +95,7 @@ const Sidebar = ({ children }) => {
     //
     upload: {
       absenU: false,
+      absenApp: false,
       penempatan: false,
     },
   });
@@ -485,13 +486,19 @@ const Sidebar = ({ children }) => {
               <>
                 <DropdownMenu
                   onClick={() => handleClick("upload", "absenU")}
-                  link="/Upload/absen"
+                  link="/upload/absen"
                   text="Absen"
                   isActive={itemsState.upload.absenU}
                 />
                 <DropdownMenu
+                  onClick={() => handleClick("upload", "absenApp")}
+                  link="/upload/absen-approval"
+                  text="Absen Approval"
+                  isActive={itemsState.upload.absenApp}
+                />
+                <DropdownMenu
                   onClick={() => handleClick("upload", "penempatan")}
-                  link="/Upload/penempatan"
+                  link="/upload/penempatan"
                   text="Penempatan"
                   isActive={itemsState.upload.penempatan}
                 />

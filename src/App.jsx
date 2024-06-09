@@ -59,6 +59,7 @@ import ForgotPass from "./views/LoginPage/ForgetPass"
 import "./App.css"
 import { useEffect } from "react"
 import Penempatan from "./views/UploadPage/Penempatan/Penempatan"
+import AbsenApprovalPage from "./views/UploadPage/AbsenApprovalPage/AbsenApprovalPage"
 
 function App() {
 
@@ -152,6 +153,7 @@ function App() {
           <Route path="/report-data/summary" element={<Sidebar>{<ReportDataSummary />}</Sidebar>} /> */}
           <Route path="/upload/absen" element={<Sidebar>{<UploadAbsen />}</Sidebar>} />
           <Route path="/upload/penempatan" element={<Sidebar>{<Penempatan />}</Sidebar>} />
+          <Route path="/upload/absen-approval" element={<Sidebar>{<AbsenApprovalPage />}</Sidebar>} />
           <Route path="/users/profile" element={<Sidebar>{<ProfilePage />}</Sidebar>} />          
         </Routes>
     </BrowserRouter>
