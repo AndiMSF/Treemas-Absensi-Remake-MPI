@@ -321,6 +321,7 @@ const FormAbsen = ({
       } else {
         isAbsenMasukFunc(true)
       }
+      navigate('/upload/absen')
       
     } catch (error) {
       // Jika tidak berhasil, tampilkan pesan error

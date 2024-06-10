@@ -39,117 +39,97 @@ const ManagementUserMember = () => {
   const handleChange = async (event, userId) => {
     const isChecked = event.target.checked;
 
+    // Update the switch state for the user
     setCheckedState((prevState) => ({
       ...prevState,
       [userId]: isChecked,
     }));
 
-    console.log("CHECKED OR NO " + event.target.checked);
     const token = localStorage.getItem("authToken");
 
-    console.log(`Edit button clicked for userId: ${userId}`);
-
-    // Jika tidak checked
+    // If the switch is turned off (unchecked)
     if (!isChecked) {
-      try {
-        if (token) {
-          console.log("ADA TOKEN " + token);
-          const response = await axios.delete(
-            `http://localhost:8081/api/management/user-member-view/delete?nikLeader=${nikLeader}&nikUser=${userId}`,
-            {
-              headers: {
-                "Content-Type": "application/json",
-                Authorization: "Bearer " + token,
-              },
+        try {
+            if (token) {
+                const response = await axios.delete(
+                    `http://localhost:8081/api/management/user-member-view/delete?nikLeader=${nikLeader}&nikUser=${userId}`,
+                    {
+                        headers: {
+                            "Content-Type": "application/json",
+                            Authorization: "Bearer " + token,
+                        },
+                    }
+                );
+
+                if (response.data.status === "Success") {
+                    Swal.fire({
+                        title: "Success!",
+                        text: response.data.message + " For Nik " + userId,
+                        icon: "success",
+                    });
+                } else {
+                    Swal.fire({
+                        title: "Error!",
+                        text: response.data.message,
+                        icon: "error",
+                    });
+                }
+            } else {
+                navigate("/");
             }
-          );
-
-          console.log("SBLM MASUK IF " + JSON.stringify(response, null, 2));
-          if (response.data.status === "Success") {
-            // Tangani login yang berhasil, misalnya, simpan token otentikasi di localStorage
-            console.log("Response : ", response);
+        } catch (error) {
             Swal.fire({
-              title: "Success!",
-              text: response.data.message + " For Nik " + userId,
-              icon: "success",
+                title: "Error!",
+                text: error.response.data.message,
+                icon: "error",
             });
-          } else {
-            // Tangani kesalahan login di sini, mungkin menampilkan pesan kesalahan
-            // Jika tidak berhasil, tampilkan pesan error
-
-            Swal.fire({
-              title: "Error!",
-              text: response.data.message,
-              icon: "error",
-            });
-            console.log(response);
-          }
-        } else {
-          navigate("/");
         }
-      } catch (error) {
-        console.log(error);
-        Swal.fire({
-          title: "Error!",
-          text: error.response.data.message,
-          icon: "error",
-        });
-      }
     } else {
-      // jika checked
+        // If the switch is turned on (checked)
+        const requestData = {
+            nikLeader: nikLeader,
+            nikUser: userId,
+        };
 
-      const requestData = {
-        nikLeader: nikLeader,
-        nikUser: userId,
-      };
-      // Jika yes akan
-      try {
-        if (token) {
-          console.log("ADA TOKEN ");
-          const response = await axios.post(
-            "http://localhost:8081/api/management/user-member-view/add",
-            requestData,
-            {
-              headers: {
-                "Content-Type": "application/json",
-                Authorization: "Bearer " + token,
-              },
+        try {
+            if (token) {
+                const response = await axios.post(
+                    "http://localhost:8081/api/management/user-member-view/add",
+                    requestData,
+                    {
+                        headers: {
+                            "Content-Type": "application/json",
+                            Authorization: "Bearer " + token,
+                        },
+                    }
+                );
+
+                if (response.data.status === "Success") {
+                    Swal.fire({
+                        title: "Success!",
+                        text: response.data.message + " For Nik " + userId,
+                        icon: "success",
+                    });
+                } else {
+                    Swal.fire({
+                        title: "Error!",
+                        text: response.data.message,
+                        icon: "error",
+                    });
+                }
+            } else {
+                navigate("/");
             }
-          );
-
-          console.log("SBLM MASUK IF " + JSON.stringify(response, null, 2));
-          if (response.data.status === "Success") {
-            // Tangani login yang berhasil, misalnya, simpan token otentikasi di localStorage
-            console.log("Response : ", response);
+        } catch (error) {
             Swal.fire({
-              title: "Success!",
-              text: response.data.message + " For Nik " + userId,
-              icon: "success",
+                title: "Error!",
+                text: error.response.data.message,
+                icon: "error",
             });
-          } else {
-            // Tangani kesalahan login di sini, mungkin menampilkan pesan kesalahan
-            // Jika tidak berhasil, tampilkan pesan error
-            Swal.fire({
-              title: "Error!",
-              text: response.data.message,
-              icon: "error",
-            });
-
-            console.log(response.data.message);
-          }
-        } else {
-          navigate("/");
         }
-      } catch (error) {
-        console.log(error);
-        Swal.fire({
-          title: "Error!",
-          text: error.response.data.message,
-          icon: "error",
-        });
-      }
     }
-  };
+};
+
   const Android12Switch = styled(Switch)(({ theme }) => ({
     padding: 8,
     "& .MuiSwitch-track": {
@@ -317,27 +297,25 @@ const ManagementUserMember = () => {
   const columns = [
     {
       name: (
-        <FormControlLabel
-          control={<Android12Switch />}
-          onChange={handleAllChange}
-          inputProps={{ "aria-label": "controlled" }}
-          style={{ marginLeft: 0 }}
-        />
+          <FormControlLabel
+              control={<Android12Switch />}
+              onChange={handleAllChange}
+              inputProps={{ "aria-label": "controlled" }}
+              style={{ marginLeft: 0 }}
+          />
       ),
       sortable: false,
       cell: (d) => (
-        <>
           <FormControlLabel
-            key={d.userId}
-            control={<Android12Switch />}
-            onChange={(event) => handleChange(event, d.userId)}
-            checked={checkedState[d.userId]}
-            inputProps={{ "aria-label": "controlled" }}
-            style={{ marginLeft: 0 }}
+              key={d.userId}
+              control={<Android12Switch />}
+              onChange={(event) => handleChange(event, d.userId)}
+              checked={checkedState[d.userId] || false}
+              inputProps={{ "aria-label": "controlled" }}
+              style={{ marginLeft: 0 }}
           />
-        </>
       ),
-    },
+  },
     {
       name: "NIK",
       selector: (row) => row.userId,

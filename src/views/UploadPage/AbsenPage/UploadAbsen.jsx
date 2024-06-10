@@ -136,7 +136,7 @@ const UploadAbsen = () => {
     } else {
       navigate("/login");
     }
-  }, [navigate]);
+  }, [navigate, isAbsenMasuk, isAbsenMasukLocalStorage]);
 
   const getRowColor = (status) => {
     console.log("STATUS "+status);
