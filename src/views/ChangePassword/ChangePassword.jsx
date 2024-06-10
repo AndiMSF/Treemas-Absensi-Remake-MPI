@@ -134,7 +134,9 @@ const ChangePassword = () => {
                 </InputGroup.Text>
               </InputGroup>
               <p>
-                <a onClick={() => navigate("/login")}>Back to Login?</a>
+                <a onClick={() => {
+                  localStorage.removeItem("authToken")
+                  navigate("/login")}}>Back to Login?</a>
               </p>
               <button
                 className="login__button"

@@ -490,12 +490,17 @@ const Sidebar = ({ children }) => {
                   text="Absen"
                   isActive={itemsState.upload.absenU}
                 />
+                {
+                  role === "HEAD" && (
                 <DropdownMenu
                   onClick={() => handleClick("upload", "absenApp")}
                   link="/upload/absen-approval"
                   text="Absen Approval"
                   isActive={itemsState.upload.absenApp}
                 />
+                  )
+                }
+                
                 <DropdownMenu
                   onClick={() => handleClick("upload", "penempatan")}
                   link="/upload/penempatan"

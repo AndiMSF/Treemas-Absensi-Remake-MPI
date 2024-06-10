@@ -22,6 +22,32 @@ const Navbar = (props) => {
   const userName = localStorage.getItem("userName");
   const karyawanImg = localStorage.getItem("karyawanImg");
 
+  const handleLogout = async (e) => {
+    const token = localStorage.getItem("authToken");
+
+    if (!token) {
+      console.error("Token is not available");
+      return navigate("/login");
+    }
+
+    // Hapus token dari localStorage atau melakukan tindakan logout yang diperlukan
+
+    const response = await fetch(`http://localhost:8081/api/auth/logout`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    console.log(response);
+    localStorage.removeItem("authToken");
+    localStorage.removeItem("karyawanImg");
+    localStorage.removeItem("userName");
+    // Redirect ke halaman login setelah logout
+    navigate("/login");
+  };
+  
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -174,7 +200,7 @@ const Navbar = (props) => {
             >
               Profile
             </Dropdown.Item>
-            <Dropdown.Item id="dropdown__item__navbar" href="#/action-2">
+            <Dropdown.Item id="dropdown__item__navbar" onClick={handleLogout}>
               Logout
             </Dropdown.Item>
           </Dropdown.Menu>
