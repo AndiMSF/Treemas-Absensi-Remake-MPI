@@ -27,9 +27,17 @@ public class UserMemberController {
     
     @GetMapping("/user-member-view")
     public ResponseEntity<Map<String, Object>> userMemberAllUser(
+        @RequestParam("nikLeader") String nikLeader
+        ) {
+        ResponseEntity<Map<String, Object>> response = service.userMemberAllUser(nikLeader);
+        return response;
+    }
+
+    @GetMapping("/user-member-active")
+    public ResponseEntity<Map<String, Object>> userMemberActive(
         @RequestHeader("Authorization") String jwtToken
         ) {
-        ResponseEntity<Map<String, Object>> response = service.userMemberAllUser(jwtToken);
+        ResponseEntity<Map<String, Object>> response = service.userMemberActive(jwtToken);
         return response;
     }
 

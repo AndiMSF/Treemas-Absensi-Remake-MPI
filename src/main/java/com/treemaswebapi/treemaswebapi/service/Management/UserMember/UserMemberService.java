@@ -12,6 +12,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.RequestHeader;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import com.treemaswebapi.treemaswebapi.config.JwtService;
 import com.treemaswebapi.treemaswebapi.controller.Management.UserMember.request.UserMemberRequest;
@@ -34,6 +35,29 @@ public class UserMemberService {
     private final KaryawanRepository karyawanRepository;
     
     public ResponseEntity<Map<String, Object>> userMemberAllUser(
+        @RequestParam("nikLeader") String nikLeader
+    ) {
+        try {
+
+
+            List<SysUserEntity> sysUser = sysUserRepository.findAllByUserIdNot(nikLeader);
+            
+            Map<String, Object> response = new HashMap<>();
+            response.put("status", "Success");
+            response.put("message", "Retrieved");
+            response.put("data", sysUser);
+            return ResponseEntity.status(HttpStatus.OK).body(response);
+        } catch (Exception e) {
+            Map<String, Object> response = new HashMap<>();
+            response.put("status", "Failed");
+            response.put("message", "Failed to retrieve User");
+            response.put("error", e.getMessage());
+            System.out.println(e);
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+        }
+    }
+
+    public ResponseEntity<Map<String, Object>> userMemberActive(
         @RequestHeader("Authorization") String jwtToken
     ) {
         try {
@@ -42,7 +66,7 @@ public class UserMemberService {
             String token = jwtToken.substring(7);
             String userId = jwtService.extractUsername(token);
 
-            List<SysUserEntity> sysUser = sysUserRepository.findAllByUserIdNot(userId);
+            List<SysUserMemberEntity> sysUser = sysUserMemberRepository.findAll();
             
             Map<String, Object> response = new HashMap<>();
             response.put("status", "Success");
