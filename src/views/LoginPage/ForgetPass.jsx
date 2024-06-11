@@ -33,7 +33,7 @@ const ForgotPass = () => {
       if (response.status === 200) {
         // Tangani login yang berhasil, misalnya, simpan token otentikasi di localStorage
         console.log("Berhasil masuk:", response);
-        window.location.href = "/login";
+        navigate("/login");
       } else {
         // Tangani kesalahan login di sini, mungkin menampilkan pesan kesalahan
         // Jika tidak berhasil, tampilkan pesan error
