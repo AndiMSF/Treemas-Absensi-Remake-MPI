@@ -167,7 +167,7 @@ const ManagementUserMember = () => {
     const fetchData = async () => {
       try {
         const response = await fetch(
-          "http://localhost:8081/api/management/user-member-view",
+          `http://localhost:8081/api/management/user-member-view?nikLeader=${nikLeader}`,
           {
             method: "GET", // Sesuaikan metode sesuai kebutuhan (GET, POST, dll.)
             headers: {
@@ -181,7 +181,7 @@ const ManagementUserMember = () => {
           throw new Error(`HTTP error! Status: ${response.status}`);
         }
         const data = await response.json();
-        console.log("Users Data : " + JSON.stringify(data, null, 2));
+        console.log("SEMUA DATA : " + JSON.stringify(data, null, 2));
         if (data.status === "Success") {
           setApiData(data.data);
           console.log(data.data);
@@ -220,7 +220,7 @@ const ManagementUserMember = () => {
     } else {
       navigate("/login");
     }
-  }, [navigate]);
+  }, [navigate, nikLeader]);
 
   useEffect(() => {
     const fetchData = async () => {
